@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>羽球隊每日點名系統</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        badminton: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            dark: '#0f172a',
+                            accent: '#0284c7'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Microsoft JhengHei', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .status-btn-active {
+            ring-2: 2px;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col font-sans">
+
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-emerald-700 via-teal-700 to-cyan-800 text-white shadow-lg sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex flex-wrap justify-between items-center gap-3">
+            <div class="flex items-center space-x-3">
+                <div class="bg-white/10 p-2.5 rounded-xl backdrop-blur-md border border-white/20">
+                    <i class="fa-solid fa-shuttlecock text-2xl text-emerald-300"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-bold tracking-tight flex items-center gap-2">
+                        羽球隊每日點名系統
+                        <span class="text-xs bg-emerald-500/30 text-emerald-200 border border-emerald-400/30 px-2 py-0.5 rounded-full font-normal">v1.0</span>
+                    </h1>
+                    <p class="text-xs text-emerald-100 opacity-90">Badminton Team Attendance Management</p>
+                </div>
+            </div>
+
+            <!-- Date Selector & Global Actions -->
+            <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+                <div class="flex items-center bg-white/10 backdrop-blur-md border border-white/20 rounded-lg px-3 py-1.5">
+                    <i class="fa-regular fa-calendar text-emerald-200 mr-2"></i>
+                    <input type="date" id="attendanceDate" class="bg-transparent text-white focus:outline-none text-sm font-medium cursor-pointer" onchange="loadAttendanceForDate()">
+                </div>
+                
+                <button onclick="openAddPlayerModal()" class="bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-semibold px-3 py-1.5 rounded-lg text-sm transition shadow-sm flex items-center gap-1.5">
+                    <i class="fa-solid fa-user-plus text-xs"></i>
+                    <span class="hidden sm:inline">新增</span>球員
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full space-y-6">
+
+        <!-- Top Navigation Tabs & Overview Stats -->
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
+            
+            <!-- Session Tabs -->
+            <div class="lg:col-span-3 bg-white p-2 rounded-2xl shadow-sm border border-slate-200/80 flex flex-wrap sm:flex-nowrap gap-1">
+                <button onclick="switchSession('morning')" id="tab-morning" class="session-tab flex-1 py-2.5 px-3 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition">
+                    <i class="fa-solid fa-sun text-amber-500"></i>
+                    <span>晨間訓練</span>
+                    <span id="badge-morning" class="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">0/0</span>
+                </button>
+                <button onclick="switchSession('afternoon')" id="tab-afternoon" class="session-tab flex-1 py-2.5 px-3 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition">
+                    <i class="fa-solid fa-cloud-sun text-orange-500"></i>
+                    <span>下午團練</span>
+                    <span id="badge-afternoon" class="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">0/0</span>
+                </button>
+                <button onclick="switchSession('night')" id="tab-night" class="session-tab flex-1 py-2.5 px-3 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition">
+                    <i class="fa-solid fa-moon text-indigo-500"></i>
+                    <span>夜訓</span>
+                    <span id="badge-night" class="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">0/0</span>
+                </button>
+                <button onclick="switchSession('extra')" id="tab-extra" class="session-tab flex-1 py-2.5 px-3 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition">
+                    <i class="fa-solid fa-dumbbell text-emerald-500"></i>
+                    <span>自主訓練</span>
+                    <span id="badge-extra" class="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">0/0</span>
+                </button>
+            </div>
+
+            <!-- Quick Export Tools -->
+            <div class="bg-white p-2.5 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-around gap-2">
+                <button onclick="copyLineReport()" class="flex-1 h-full py-2 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-medium rounded-xl text-xs flex flex-col items-center justify-center gap-1 transition border border-emerald-200">
+                    <i class="fa-brands fa-line text-lg text-emerald-600"></i>
+                    <span>複製 LINE 點名報表</span>
+                </button>
+                <button onclick="exportCSV()" class="flex-1 h-full py-2 px-3 bg-sky-50 hover:bg-sky-100 text-sky-700 font-medium rounded-xl text-xs flex flex-col items-center justify-center gap-1 transition border border-sky-200">
+                    <i class="fa-solid fa-file-csv text-lg text-sky-600"></i>
+                    <span>匯出 Excel / CSV</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Session Overview & Action Controls -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-4 sm:p-5">
+            <div class="flex flex-wrap justify-between items-center gap-4 pb-4 border-b border-slate-100">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                        <span id="currentSessionTitle">晨間訓練</span> 點名表
+                        <span id="currentDateBadge" class="text-xs font-normal text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-full">2026-11-09</span>
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-0.5">點擊球員卡片中的出席狀態按鈕即可更新點名</p>
+                </div>
+
+                <!-- Fast Operations -->
+                <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="setAllStatus('present')" class="text-xs px-3 py-1.5 bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-medium rounded-lg transition flex items-center gap-1">
+                        <i class="fa-solid fa-check-double text-emerald-600"></i> 全員出席
+                    </button>
+                    <button onclick="setAllStatus('absent')" class="text-xs px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-lg transition flex items-center gap-1">
+                        <i class="fa-solid fa-rotate-left text-slate-500"></i> 一鍵清空
+                    </button>
+                    <div class="h-4 w-px bg-slate-200 mx-1 hidden sm:block"></div>
+                    <button onclick="togglePlayerManagementModal()" class="text-xs px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white font-medium rounded-lg transition flex items-center gap-1">
+                        <i class="fa-solid fa-users-gear"></i> 球員陣容管理 (<span id="totalPlayerCount">0</span>)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Bar -->
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 my-4">
+                <div class="bg-emerald-50/60 border border-emerald-100 rounded-xl p-3 text-center">
+                    <div class="text-xs font-medium text-emerald-700 mb-1">出席 🟢</div>
+                    <div id="stat-present" class="text-xl font-bold text-emerald-800">0</div>
+                </div>
+                <div class="bg-amber-50/60 border border-amber-100 rounded-xl p-3 text-center">
+                    <div class="text-xs font-medium text-amber-700 mb-1">請假 🟡</div>
+                    <div id="stat-leave" class="text-xl font-bold text-amber-800">0</div>
+                </div>
+                <div class="bg-orange-50/60 border border-orange-100 rounded-xl p-3 text-center">
+                    <div class="text-xs font-medium text-orange-700 mb-1">遲到 🟠</div>
+                    <div id="stat-late" class="text-xl font-bold text-orange-800">0</div>
+                </div>
+                <div class="bg-rose-50/60 border border-rose-100 rounded-xl p-3 text-center">
+                    <div class="text-xs font-medium text-rose-700 mb-1">缺席 🔴</div>
+                    <div id="stat-absent" class="text-xl font-bold text-rose-800">0</div>
+                </div>
+                <div class="col-span-2 sm:col-span-1 bg-slate-50 border border-slate-100 rounded-xl p-3 text-center flex flex-col justify-center">
+                    <div class="text-xs font-medium text-slate-500 mb-1">出席率</div>
+                    <div id="stat-rate" class="text-xl font-bold text-slate-700">0%</div>
+                </div>
+            </div>
+
+            <!-- Search & Filter Controls -->
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-3 mb-4">
+                <div class="relative w-full sm:w-64">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                    <input type="text" id="searchInput" oninput="renderAttendanceList()" placeholder="搜尋球員姓名..." class="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition">
+                </div>
+                <div class="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
+                    <span class="text-xs text-slate-400 whitespace-nowrap">角色篩選:</span>
+                    <button onclick="setRoleFilter('all')" id="filter-role-all" class="role-filter-btn text-xs px-2.5 py-1 rounded-lg bg-emerald-600 text-white font-medium whitespace-nowrap">全部</button>
+                    <button onclick="setRoleFilter('男單')" id="filter-role-男單" class="role-filter-btn text-xs px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium whitespace-nowrap">男單</button>
+                    <button onclick="setRoleFilter('女單')" id="filter-role-女單" class="role-filter-btn text-xs px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium whitespace-nowrap">女單</button>
+                    <button onclick="setRoleFilter('男雙')" id="filter-role-男雙" class="role-filter-btn text-xs px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium whitespace-nowrap">男雙</button>
+                    <button onclick="setRoleFilter('女雙')" id="filter-role-女雙" class="role-filter-btn text-xs px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium whitespace-nowrap">女雙</button>
+                    <button onclick="setRoleFilter('教練')" id="filter-role-教練" class="role-filter-btn text-xs px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium whitespace-nowrap">教練/球助</button>
+                </div>
+            </div>
+
+            <!-- Attendance Player Cards Grid -->
+            <div id="attendanceGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                <!-- Dynamically Rendered Cards -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="hidden text-center py-12">
+                <i class="fa-solid fa-user-slash text-4xl text-slate-300 mb-3"></i>
+                <p class="text-slate-500 font-medium">尚未搜尋到符合條件的球員</p>
+                <p class="text-xs text-slate-400 mt-1">請嘗試變更搜尋關鍵字或新增球員</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal 1: Add Player Modal -->
+    <div id="addPlayerModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-hidden transform transition-all">
+            <div class="bg-gradient-to-r from-emerald-600 to-teal-700 px-6 py-4 text-white flex justify-between items-center">
+                <h3 class="font-bold text-lg flex items-center gap-2">
+                    <i class="fa-solid fa-user-plus"></i> 新增球員
+                </h3>
+                <button onclick="closeAddPlayerModal()" class="text-white/80 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form onsubmit="handleAddPlayer(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">球員姓名 <span class="text-rose-500">*</span></label>
+                    <input type="text" id="newPlayerName" required placeholder="請輸入姓名 (例：戴資穎)" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">性別</label>
+                        <select id="newPlayerGender" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+                            <option value="男">男 ♂</option>
+                            <option value="女">女 ♀</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">主要角色/項目</label>
+                        <select id="newPlayerRole" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+                            <option value="男單">男單</option>
+                            <option value="女單">女單</option>
+                            <option value="男雙">男雙</option>
+                            <option value="女雙">女雙</option>
+                            <option value="混雙">混雙</option>
+                            <option value="教練">教練</option>
+                            <option value="體能師">體能師</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">背號 / 隊內編號 (選填)</label>
+                    <input type="text" id="newPlayerNumber" placeholder="例如: #07" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+                </div>
+                <div class="pt-2 flex gap-3">
+                    <button type="button" onclick="closeAddPlayerModal()" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold rounded-xl transition">取消</button>
+                    <button type="submit" class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl shadow-md transition">確認新增</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal 2: Manage Roster Modal -->
+    <div id="manageRosterModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-2xl w-full shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+            <div class="bg-slate-800 px-6 py-4 text-white flex justify-between items-center">
+                <h3 class="font-bold text-lg flex items-center gap-2">
+                    <i class="fa-solid fa-users-gear"></i> 球員陣容管理
+                </h3>
+                <button onclick="togglePlayerManagementModal()" class="text-white/80 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                <span class="text-xs font-medium text-slate-600">共 <span id="manageCount">0</span> 位球員</span>
+                <button onclick="closeRosterOpenAdd()" class="text-xs bg-emerald-600 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-emerald-700 transition">
+                    + 快速新增球員
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto flex-1">
+                <div id="rosterList" class="space-y-2">
+                    <!-- Roster items dynamically inserted here -->
+                </div>
+            </div>
+            <div class="p-4 border-t border-slate-100 bg-slate-50 text-right">
+                <button onclick="togglePlayerManagementModal()" class="px-5 py-2 bg-slate-800 text-white text-xs font-semibold rounded-xl">完成</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Message Box -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <div id="toastContent" class="bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl flex items-center gap-3 text-sm">
+            <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
+            <span id="toastMessage">已成功儲存！</span>
+        </div>
+    </div>
+
+    <!-- Application Script -->
+    <script>
+        // --- State Management ---
+        const DEFAULT_PLAYERS = [
+            { id: 'p1', name: '周天成', gender: '男', role: '男單', number: '01' },
+            { id: 'p2', name: '戴資穎', gender: '女', role: '女單', number: '02' },
+            { id: 'p3', name: '李洋', gender: '男', role: '男雙', number: '03' },
+            { id: 'p4', name: '王齊麟', gender: '男', role: '男雙', number: '04' },
+            { id: 'p5', name: '許玟琪', gender: '女', role: '女單', number: '05' },
+            { id: 'p6', name: '鄧淳薫', gender: '女', role: '女雙', number: '06' },
+            { id: 'p7', name: '陳宏麟', gender: '男', role: '教練', number: 'C1' },
+            { id: 'p8', name: '葉宏蔚', gender: '男', role: '混雙', number: '08' }
+        ];
+
+        const SESSION_NAMES = {
+            morning: '晨間訓練',
+            afternoon: '下午團練',
+            night: '夜訓',
+            extra: '自主訓練'
+        };
+
+        let players = [];
+        let currentSession = 'morning';
+        let currentRoleFilter = 'all';
+        let attendanceRecord = {}; // Structure: { "2026-11-09": { morning: { p1: { status: 'present', note: '' } } } }
+
+        // --- Init Function ---
+        window.onload = function() {
+            // Set date to today default
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('attendanceDate').value = today;
+            document.getElementById('currentDateBadge').innerText = today;
+
+            loadPlayersFromStorage();
+            loadAttendanceForDate();
+            switchSession('morning');
+        };
+
+        // --- Data Persistence Helpers ---
+        function loadPlayersFromStorage() {
+            const stored = localStorage.getItem('badminton_players');
+            if (stored) {
+                try {
+                    players = JSON.parse(stored);
+                } catch(e) {
+                    players = [...DEFAULT_PLAYERS];
+                }
+            } else {
+                players = [...DEFAULT_PLAYERS];
+                savePlayersToStorage();
+            }
+            document.getElementById('totalPlayerCount').innerText = players.length;
+            document.getElementById('manageCount').innerText = players.length;
+        }
+
+        function savePlayersToStorage() {
+            localStorage.setItem('badminton_players', JSON.stringify(players));
+            document.getElementById('totalPlayerCount').innerText = players.length;
+            document.getElementById('manageCount').innerText = players.length;
+        }
+
+        function loadAttendanceForDate() {
+            const date = document.getElementById('attendanceDate').value;
+            document.getElementById('currentDateBadge').innerText = date;
+            
+            const stored = localStorage.getItem(`badminton_attendance_${date}`);
+            if (stored) {
+                try {
+                    attendanceRecord = JSON.parse(stored);
+                } catch(e) {
+                    attendanceRecord = initEmptyAttendanceStructure();
+                }
+            } else {
+                attendanceRecord = initEmptyAttendanceStructure();
+            }
+
+            updateAllBadges();
+            renderAttendanceList();
+            updateStats();
+        }
+
+        function saveAttendanceForDate() {
+            const date = document.getElementById('attendanceDate').value;
+            localStorage.setItem(`badminton_attendance_${date}`, JSON.stringify(attendanceRecord));
+            updateAllBadges();
+            updateStats();
+        }
+
+        function initEmptyAttendanceStructure() {
+            return {
+                morning: {},
+                afternoon: {},
+                night: {},
+                extra: {}
+            };
+        }
+
+        // --- Session & Filter Navigation ---
+        function switchSession(sessionKey) {
+            currentSession = sessionKey;
+            
+            // Highlight Tab Buttons
+            document.querySelectorAll('.session-tab').forEach(tab => {
+                tab.classList.remove('bg-emerald-600', 'text-white', 'shadow-md');
+                tab.classList.add('bg-transparent', 'text-slate-600', 'hover:bg-slate-100');
+            });
+
+            const activeTab = document.getElementById(`tab-${sessionKey}`);
+            activeTab.classList.remove('bg-transparent', 'text-slate-600', 'hover:bg-slate-100');
+            activeTab.classList.add('bg-emerald-600', 'text-white', 'shadow-md');
+
+            // Update Titles
+            document.getElementById('currentSessionTitle').innerText = SESSION_NAMES[sessionKey];
+
+            renderAttendanceList();
+            updateStats();
+        }
+
+        function setRoleFilter(role) {
+            currentRoleFilter = role;
+            document.querySelectorAll('.role-filter-btn').forEach(btn => {
+                btn.classList.remove('bg-emerald-600', 'text-white');
+                btn.classList.add('bg-slate-100', 'text-slate-600', 'hover:bg-slate-200');
+            });
+            const activeBtn = document.getElementById(`filter-role-${role}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('bg-slate-100', 'text-slate-600', 'hover:bg-slate-200');
+                activeBtn.classList.add('bg-emerald-600', 'text-white');
+            }
+            renderAttendanceList();
+        }
+
+        // --- Attendance Operations ---
+        function setStatus(playerId, status) {
+            if (!attendanceRecord[currentSession]) {
+                attendanceRecord[currentSession] = {};
+            }
+            if (!attendanceRecord[currentSession][playerId]) {
+                attendanceRecord[currentSession][playerId] = { status: '', note: '' };
+            }
+            
+            // Toggle off if clicking the same status
+            if (attendanceRecord[currentSession][playerId].status === status) {
+                attendanceRecord[currentSession][playerId].status = '';
+            } else {
+                attendanceRecord[currentSession][playerId].status = status;
+            }
+
+            saveAttendanceForDate();
+            renderAttendanceList();
+        }
+
+        function updateNote(playerId, noteValue) {
+            if (!attendanceRecord[currentSession]) {
+                attendanceRecord[currentSession] = {};
+            }
+            if (!attendanceRecord[currentSession][playerId]) {
+                attendanceRecord[currentSession][playerId] = { status: '', note: '' };
+            }
+            attendanceRecord[currentSession][playerId].note = noteValue;
+            saveAttendanceForDate();
+        }
+
+        function setAllStatus(status) {
+            if (!attendanceRecord[currentSession]) {
+                attendanceRecord[currentSession] = {};
+            }
+            players.forEach(p => {
+                if (!attendanceRecord[currentSession][p.id]) {
+                    attendanceRecord[currentSession][p.id] = { status: '', note: '' };
+                }
+                attendanceRecord[currentSession][p.id].status = (status === 'present') ? 'present' : '';
+            });
+            saveAttendanceForDate();
+            renderAttendanceList();
+            showToast(status === 'present' ? '已將所有球員標記為【出席】' : '已重置點名紀錄');
+        }
+
+        // --- UI Rendering ---
+        function renderAttendanceList() {
+            const grid = document.getElementById('attendanceGrid');
+            const empty = document.getElementById('emptyState');
+            const searchVal = document.getElementById('searchInput').value.trim().toLowerCase();
+
+            grid.innerHTML = '';
+
+            const filtered = players.filter(p => {
+                const matchName = p.name.toLowerCase().includes(searchVal) || (p.number && p.number.toLowerCase().includes(searchVal));
+                const matchRole = (currentRoleFilter === 'all') || (p.role === currentRoleFilter);
+                return matchName && matchRole;
+            });
+
+            if (filtered.length === 0) {
+                grid.classList.add('hidden');
+                empty.classList.remove('hidden');
+                return;
+            }
+
+            grid.classList.remove('hidden');
+            empty.classList.add('hidden');
+
+            const sessionData = attendanceRecord[currentSession] || {};
+
+            filtered.forEach(p => {
+                const pRecord = sessionData[p.id] || { status: '', note: '' };
+                const status = pRecord.status;
+
+                // Status Button Styling helper
+                const isPresent = status === 'present';
+                const isLeave = status === 'leave';
+                const isLate = status === 'late';
+                const isAbsent = status === 'absent';
+
+                const card = document.createElement('div');
+                card.className = `bg-white border rounded-2xl p-4 transition shadow-sm hover:shadow-md flex flex-col justify-between ${
+                    isPresent ? 'border-emerald-300 ring-1 ring-emerald-300/50 bg-emerald-50/20' : 
+                    isLeave ? 'border-amber-300 bg-amber-50/20' :
+                    isLate ? 'border-orange-300 bg-orange-50/20' :
+                    isAbsent ? 'border-rose-300 bg-rose-50/20' : 'border-slate-200'
+                }`;
+
+                card.innerHTML = `
+                    <div>
+                        <!-- Header & Player Info -->
+                        <div class="flex justify-between items-start mb-3">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center font-bold text-slate-700 text-sm border border-slate-200">
+                                    ${p.number ? p.number : p.name.substring(0, 1)}
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-slate-800 text-base flex items-center gap-1.5">
+                                        ${p.name}
+                                        <span class="text-[10px] font-medium px-2 py-0.5 rounded-full ${p.gender === '女' ? 'bg-pink-100 text-pink-700' : 'bg-blue-100 text-blue-700'}">${p.role}</span>
+                                    </h4>
+                                    <p class="text-xs text-slate-400">編號: ${p.number || '無'}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Status Action Buttons -->
+                        <div class="grid grid-cols-4 gap-1.5 mb-3">
+                            <button onclick="setStatus('${p.id}', 'present')" class="py-1.5 px-1 rounded-xl text-xs font-semibold flex flex-col sm:flex-row items-center justify-center gap-1 transition ${
+                                isPresent ? 'bg-emerald-600 text-white shadow-sm ring-2 ring-emerald-400' : 'bg-slate-100 text-slate-600 hover:bg-emerald-50 hover:text-emerald-700'
+                            }">
+                                <span>🟢</span> 出席
+                            </button>
+                            <button onclick="setStatus('${p.id}', 'leave')" class="py-1.5 px-1 rounded-xl text-xs font-semibold flex flex-col sm:flex-row items-center justify-center gap-1 transition ${
+                                isLeave ? 'bg-amber-500 text-white shadow-sm ring-2 ring-amber-300' : 'bg-slate-100 text-slate-600 hover:bg-amber-50 hover:text-amber-700'
+                            }">
+                                <span>🟡</span> 請假
+                            </button>
+                            <button onclick="setStatus('${p.id}', 'late')" class="py-1.5 px-1 rounded-xl text-xs font-semibold flex flex-col sm:flex-row items-center justify-center gap-1 transition ${
+                                isLate ? 'bg-orange-500 text-white shadow-sm ring-2 ring-orange-300' : 'bg-slate-100 text-slate-600 hover:bg-orange-50 hover:text-orange-700'
+                            }">
+                                <span>🟠</span> 遲到
+                            </button>
+                            <button onclick="setStatus('${p.id}', 'absent')" class="py-1.5 px-1 rounded-xl text-xs font-semibold flex flex-col sm:flex-row items-center justify-center gap-1 transition ${
+                                isAbsent ? 'bg-rose-600 text-white shadow-sm ring-2 ring-rose-300' : 'bg-slate-100 text-slate-600 hover:bg-rose-50 hover:text-rose-700'
+                            }">
+                                <span>🔴</span> 缺席
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Note input -->
+                    <div class="mt-2 pt-2 border-t border-slate-100/80">
+                        <input type="text" value="${pRecord.note || ''}" onchange="updateNote('${p.id}', this.value)" placeholder="添加備註 (如: 傷退、請公假...)" class="w-full bg-slate-50 border border-slate-200 rounded-lg text-xs px-2.5 py-1 focus:outline-none focus:bg-white focus:border-emerald-500 transition">
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            });
+        }
+
+        function updateStats() {
+            const sessionData = attendanceRecord[currentSession] || {};
+            let presentCount = 0;
+            let leaveCount = 0;
+            let lateCount = 0;
+            let absentCount = 0;
+
+            players.forEach(p => {
+                const status = sessionData[p.id]?.status;
+                if (status === 'present') presentCount++;
+                else if (status === 'leave') leaveCount++;
+                else if (status === 'late') lateCount++;
+                else if (status === 'absent') absentCount++;
+            });
+
+            document.getElementById('stat-present').innerText = presentCount;
+            document.getElementById('stat-leave').innerText = leaveCount;
+            document.getElementById('stat-late').innerText = lateCount;
+            document.getElementById('stat-absent').innerText = absentCount;
+
+            const total = players.length;
+            const rate = total > 0 ? Math.round((presentCount / total) * 100) : 0;
+            document.getElementById('stat-rate').innerText = `${rate}%`;
+        }
+
+        function updateAllBadges() {
+            ['morning', 'afternoon', 'night', 'extra'].forEach(sessionKey => {
+                const sData = attendanceRecord[sessionKey] || {};
+                let count = 0;
+                players.forEach(p => {
+                    if (sData[p.id]?.status === 'present') count++;
+                });
+                const badge = document.getElementById(`badge-${sessionKey}`);
+                if (badge) {
+                    badge.innerText = `${count}/${players.length}`;
+                }
+            });
+        }
+
+        // --- Player Management Modals & Functions ---
+        function openAddPlayerModal() {
+            document.getElementById('addPlayerModal').classList.remove('hidden');
+        }
+
+        function closeAddPlayerModal() {
+            document.getElementById('addPlayerModal').classList.add('hidden');
+            document.getElementById('newPlayerName').value = '';
+            document.getElementById('newPlayerNumber').value = '';
+        }
+
+        function handleAddPlayer(e) {
+            e.preventDefault();
+            const name = document.getElementById('newPlayerName').value.trim();
+            const gender = document.getElementById('newPlayerGender').value;
+            const role = document.getElementById('newPlayerRole').value;
+            const number = document.getElementById('newPlayerNumber').value.trim();
+
+            if (!name) return;
+
+            const newPlayer = {
+                id: 'p_' + Date.now(),
+                name,
+                gender,
+                role,
+                number
+            };
+
+            players.push(newPlayer);
+            savePlayersToStorage();
+            closeAddPlayerModal();
+            renderAttendanceList();
+            updateAllBadges();
+            updateStats();
+            showToast(`已成功新增球員：${name}`);
+        }
+
+        function togglePlayerManagementModal() {
+            const modal = document.getElementById('manageRosterModal');
+            if (modal.classList.contains('hidden')) {
+                renderRosterList();
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        function closeRosterOpenAdd() {
+            togglePlayerManagementModal();
+            openAddPlayerModal();
+        }
+
+        function renderRosterList() {
+            const container = document.getElementById('rosterList');
+            container.innerHTML = '';
+
+            players.forEach((p, idx) => {
+                const item = document.createElement('div');
+                item.className = 'flex items-center justify-between p-3 bg-slate-50 border border-slate-200 rounded-xl';
+                item.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <span class="text-xs text-slate-400 font-mono w-6 text-center">${idx + 1}</span>
+                        <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-xs">
+                            ${p.number || p.name[0]}
+                        </div>
+                        <div>
+                            <span class="font-bold text-slate-800 text-sm">${p.name}</span>
+                            <span class="text-xs px-2 py-0.5 bg-slate-200 text-slate-600 rounded-md ml-2">${p.role}</span>
+                        </div>
+                    </div>
+                    <button onclick="removePlayer('${p.id}')" class="text-rose-500 hover:text-rose-700 p-2 text-xs font-medium rounded-lg hover:bg-rose-50 transition">
+                        <i class="fa-solid fa-trash-can mr-1"></i>刪除
+                    </button>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function removePlayer(id) {
+            const target = players.find(p => p.id === id);
+            if (!target) return;
+            if (confirm(`確定要刪除球員【${target.name}】嗎？`)) {
+                players = players.filter(p => p.id !== id);
+                savePlayersToStorage();
+                renderRosterList();
+                renderAttendanceList();
+                updateAllBadges();
+                updateStats();
+                showToast(`已刪除球員 ${target.name}`);
+            }
+        }
+
+        // --- Export Functions ---
+        function copyLineReport() {
+            const date = document.getElementById('attendanceDate').value;
+            const sessionTitle = SESSION_NAMES[currentSession];
+            const sessionData = attendanceRecord[currentSession] || {};
+
+            let presentList = [];
+            let leaveList = [];
+            let lateList = [];
+            let absentList = [];
+            let unrecordedList = [];
+
+            players.forEach(p => {
+                const record = sessionData[p.id];
+                const note = record?.note ? `(${record.note})` : '';
+                const nameWithNote = `${p.name}${note}`;
+
+                if (record?.status === 'present') presentList.push(nameWithNote);
+                else if (record?.status === 'leave') leaveList.push(nameWithNote);
+                else if (record?.status === 'late') lateList.push(nameWithNote);
+                else if (record?.status === 'absent') absentList.push(nameWithNote);
+                else unrecordedList.push(p.name);
+            });
+
+            const total = players.length;
+            const rate = total > 0 ? Math.round((presentList.length / total) * 100) : 0;
+
+            let reportStr = `🏸【羽球隊點名回報 - ${sessionTitle}】\n`;
+            reportStr += `📅 日期：${date}\n`;
+            reportStr += `📊 出席率：${rate}% (${presentList.length}/${total}人)\n`;
+            reportStr += `------------------------------\n`;
+            reportStr += `🟢 出席 (${presentList.length})：${presentList.join('、') || '無'}\n`;
+            if (leaveList.length > 0) reportStr += `🟡 請假 (${leaveList.length})：${leaveList.join('、')}\n`;
+            if (lateList.length > 0) reportStr += `🟠 遲到 (${lateList.length})：${lateList.join('、')}\n`;
+            if (absentList.length > 0) reportStr += `🔴 缺席 (${absentList.length})：${absentList.join('、')}\n`;
+            if (unrecordedList.length > 0) reportStr += `⚪ 未記錄 (${unrecordedList.length})：${unrecordedList.join('、')}\n`;
+
+            // Copy via fallback text area
+            const textArea = document.createElement("textarea");
+            textArea.value = reportStr;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+
+            showToast('已複製 LINE 點名報表至剪貼簿！');
+        }
+
+        function exportCSV() {
+            const date = document.getElementById('attendanceDate').value;
+            let csvContent = "\uFEFF"; // UTF-8 BOM
+            csvContent += `日期,時段,球員姓名,角色,出席狀態,備註\n`;
+
+            ['morning', 'afternoon', 'night', 'extra'].forEach(sKey => {
+                const sName = SESSION_NAMES[sKey];
+                const sData = attendanceRecord[sKey] || {};
+
+                players.forEach(p => {
+                    const rec = sData[p.id] || {};
+                    let statusText = '未標記';
+                    if (rec.status === 'present') statusText = '出席';
+                    else if (rec.status === 'leave') statusText = '請假';
+                    else if (rec.status === 'late') statusText = '遲到';
+                    else if (rec.status === 'absent') statusText = '缺席';
+
+                    const note = (rec.note || '').replace(/,/g, ' ');
+                    csvContent += `${date},${sName},${p.name},${p.role},${statusText},${note}\n`;
+                });
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", `羽球隊點名紀錄_${date}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            showToast('點名紀錄 CSV 檔案已開始下載');
+        }
+
+        // --- Toast Notification ---
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMessage').innerText = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
