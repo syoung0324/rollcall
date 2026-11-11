@@ -62,7 +62,7 @@
                 <div>
                     <h1 class="text-xl sm:text-2xl font-bold tracking-tight flex items-center gap-2">
                         羽球隊每日點名系統
-                        <span class="text-xs bg-emerald-500/30 text-emerald-200 border border-emerald-400/30 px-2 py-0.5 rounded-full font-normal">v2.2</span>
+                        <span class="text-xs bg-emerald-500/30 text-emerald-200 border border-emerald-400/30 px-2 py-0.5 rounded-full font-normal">v2.7</span>
                     </h1>
                     <p class="text-xs text-emerald-100 opacity-90">Badminton Team Attendance Management</p>
                 </div>
@@ -77,7 +77,7 @@
                 
                 <button onclick="openAddPlayerModal()" class="bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-semibold px-3 py-1.5 rounded-lg text-sm transition shadow-sm flex items-center gap-1.5">
                     <i class="fa-solid fa-user-plus text-xs"></i>
-                    <span class="hidden sm:inline">新增</span>球員
+                    <span class="hidden sm:inline">新增</span>成員
                 </button>
             </div>
         </div>
@@ -103,13 +103,18 @@
                 </button>
                 <button onclick="switchSession('night')" id="tab-night" class="session-tab flex-1 py-2.5 px-3 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition">
                     <i class="fa-solid fa-moon text-indigo-500"></i>
-                    <span>夜訓</span>
+                    <span>夜訓 <span class="text-[10px] text-indigo-300 font-normal">(高年級)</span></span>
                     <span id="badge-night" class="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">0/0</span>
                 </button>
                 <button onclick="switchSession('extra')" id="tab-extra" class="session-tab flex-1 py-2.5 px-3 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition">
                     <i class="fa-solid fa-bus text-emerald-500"></i>
                     <span>竹東移地訓練</span>
                     <span id="badge-extra" class="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">0/0</span>
+                </button>
+                <button onclick="switchSession('tutoring')" id="tab-tutoring" class="session-tab flex-1 py-2.5 px-3 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition">
+                    <i class="fa-solid fa-book-open text-cyan-600"></i>
+                    <span>課輔班</span>
+                    <span id="badge-tutoring" class="text-xs px-2 py-0.5 rounded-full bg-cyan-50 text-cyan-700 font-bold">0/0</span>
                 </button>
             </div>
 
@@ -130,7 +135,7 @@
                         <span id="currentSessionTitle">晨間訓練</span> 點名表
                         <span id="currentDateBadge" class="text-xs font-normal text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-full">2026-11-09</span>
                     </h2>
-                    <p class="text-xs text-slate-500 mt-0.5">點擊球員卡片中的出席狀態按鈕即可更新點名</p>
+                    <p class="text-xs text-slate-500 mt-0.5">點擊成員卡片中的出席狀態按鈕即可更新點名</p>
                 </div>
 
                 <!-- Fast Operations -->
@@ -143,13 +148,13 @@
                     </button>
                     <div class="h-4 w-px bg-slate-200 mx-1 hidden sm:block"></div>
                     <button onclick="togglePlayerManagementModal()" class="text-xs px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white font-medium rounded-lg transition flex items-center gap-1">
-                        <i class="fa-solid fa-users-gear"></i> 球員陣容管理 (<span id="totalPlayerCount">0</span>)
+                        <i class="fa-solid fa-users-gear"></i> 成員陣容管理 (<span id="totalPlayerCount">0</span>)
                     </button>
                 </div>
             </div>
 
-            <!-- Stats Bar (Updated with Grade Counts) -->
-            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 my-4">
+            <!-- Stats Bar -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-9 gap-3 my-4">
                 <div class="bg-emerald-50/60 border border-emerald-100 rounded-xl p-3 text-center">
                     <div class="text-xs font-medium text-emerald-700 mb-1">出席 🟢</div>
                     <div id="stat-present" class="text-lg font-bold text-emerald-800">0</div>
@@ -170,7 +175,6 @@
                     <div class="text-xs font-medium text-slate-500 mb-1">出席率</div>
                     <div id="stat-rate" class="text-lg font-bold text-slate-700">0%</div>
                 </div>
-                <!-- Grade Stats -->
                 <div class="bg-amber-50/40 border border-amber-100 rounded-xl p-3 text-center">
                     <div class="text-xs font-medium text-amber-800 mb-1">低年級 🧒</div>
                     <div id="stat-low-grade" class="text-base font-bold text-amber-900">0/0</div>
@@ -183,22 +187,26 @@
                     <div class="text-xs font-medium text-purple-800 mb-1">高年級 🧑</div>
                     <div id="stat-high-grade" class="text-base font-bold text-purple-900">0/0</div>
                 </div>
+                <div class="bg-teal-50/40 border border-teal-100 rounded-xl p-3 text-center">
+                    <div class="text-xs font-medium text-teal-800 mb-1">教練群 🧑‍🏫</div>
+                    <div id="stat-coach-group" class="text-base font-bold text-teal-900">0/0</div>
+                </div>
             </div>
 
-            <!-- Search & Grade Group Filter Controls -->
+            <!-- Search & Group Filter Controls -->
             <div class="flex flex-col sm:flex-row justify-between items-center gap-3 mb-4">
                 <div class="relative w-full sm:w-64">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                    <input type="text" id="searchInput" oninput="renderAttendanceList()" placeholder="搜尋球員姓名..." class="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition">
+                    <input type="text" id="searchInput" oninput="renderAttendanceList()" placeholder="搜尋成員姓名..." class="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition">
                 </div>
                 
-                <!-- Grade Group Filters -->
                 <div class="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
                     <span class="text-xs text-slate-400 whitespace-nowrap"><i class="fa-solid fa-filter mr-1"></i>分組篩選:</span>
                     <button onclick="setGradeFilter('all')" id="filter-grade-all" class="grade-filter-btn text-xs px-3 py-1.5 rounded-lg bg-emerald-600 text-white font-medium whitespace-nowrap transition shadow-sm">全部顯示</button>
-                    <button onclick="setGradeFilter('高年級')" id="filter-grade-高年級" class="grade-filter-btn text-xs px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium whitespace-nowrap transition">高年級 (五六年級)</button>
-                    <button onclick="setGradeFilter('中年級')" id="filter-grade-中年級" class="grade-filter-btn text-xs px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium whitespace-nowrap transition">中年級 (三四年級)</button>
-                    <button onclick="setGradeFilter('低年級')" id="filter-grade-低年級" class="grade-filter-btn text-xs px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium whitespace-nowrap transition">低年級 (一二年級)</button>
+                    <button onclick="setGradeFilter('高年級')" id="filter-grade-高年級" class="grade-filter-btn text-xs px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium whitespace-nowrap transition">高年級</button>
+                    <button onclick="setGradeFilter('中年級')" id="filter-grade-中年級" class="grade-filter-btn text-xs px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium whitespace-nowrap transition">中年級</button>
+                    <button onclick="setGradeFilter('低年級')" id="filter-grade-低年級" class="grade-filter-btn text-xs px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium whitespace-nowrap transition">低年級</button>
+                    <button onclick="setGradeFilter('教練群')" id="filter-grade-教練群" class="grade-filter-btn text-xs px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium whitespace-nowrap transition">教練群</button>
                 </div>
             </div>
 
@@ -210,29 +218,30 @@
             <!-- Empty State -->
             <div id="emptyState" class="hidden text-center py-12">
                 <i class="fa-solid fa-user-slash text-4xl text-slate-300 mb-3"></i>
-                <p class="text-slate-500 font-medium">尚未搜尋到符合條件的球員</p>
-                <p class="text-xs text-slate-400 mt-1">請嘗試變更搜尋關鍵字或分組篩選條件</p>
+                <p class="text-slate-500 font-medium">尚未搜尋到符合條件的成員</p>
+                <p class="text-xs text-slate-400 mt-1" id="emptyStateHint">請嘗試變更搜尋關鍵字或分組篩選條件</p>
             </div>
         </div>
     </main>
 
-    <!-- Modal 1: Add Player Modal -->
+    <!-- Modal: Add/Edit Player Modal -->
     <div id="addPlayerModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-hidden transform transition-all">
             <div class="bg-gradient-to-r from-emerald-600 to-teal-700 px-6 py-4 text-white flex justify-between items-center">
-                <h3 class="font-bold text-lg flex items-center gap-2">
-                    <i class="fa-solid fa-user-plus"></i> 新增球員
+                <h3 id="modalTitle" class="font-bold text-lg flex items-center gap-2">
+                    <i class="fa-solid fa-user-plus"></i> 新增成員
                 </h3>
                 <button onclick="closeAddPlayerModal()" class="text-white/80 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <form onsubmit="handleAddPlayer(event)" class="p-6 space-y-4">
+            <form onsubmit="handleSavePlayer(event)" class="p-6 space-y-4">
+                <input type="hidden" id="editPlayerId">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">球員姓名 <span class="text-rose-500">*</span></label>
-                    <input type="text" id="newPlayerName" required placeholder="請輸入姓名 (例：林小明)" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">成員姓名 <span class="text-rose-500">*</span></label>
+                    <input type="text" id="newPlayerName" required placeholder="請輸入姓名 (例：林小明 或 盧盧教練)" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">年級</label>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">年級 / 身分分類</label>
                         <select id="newPlayerGrade" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
                             <option value="一年級">一年級 (低年級)</option>
                             <option value="二年級" selected>二年級 (低年級)</option>
@@ -240,42 +249,51 @@
                             <option value="四年級">四年級 (中年級)</option>
                             <option value="五年級">五年級 (高年級)</option>
                             <option value="六年級">六年級 (高年級)</option>
+                            <option value="教練">教練 / 球助 (教練群)</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">身分/角色</label>
-                        <select id="newPlayerRole" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
-                            <option value="球員">球員</option>
-                            <option value="教練">教練</option>
-                            <option value="球助">球助</option>
-                        </select>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">背號 / 隊內編號 (選填)</label>
+                        <input type="text" id="newPlayerNumber" placeholder="例如: #07 或 C1" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
                     </div>
                 </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">背號 / 隊內編號 (選填)</label>
-                    <input type="text" id="newPlayerNumber" placeholder="例如: #07" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+
+                <!-- Checkbox options for Extra & Tutoring -->
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">參與訓練班別勾選：</label>
+                    <div class="flex items-center gap-6">
+                        <label class="flex items-center gap-2 text-xs font-medium text-slate-700 cursor-pointer">
+                            <input type="checkbox" id="checkExtra" class="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500">
+                            <span>竹東移地訓練</span>
+                        </label>
+                        <label class="flex items-center gap-2 text-xs font-medium text-slate-700 cursor-pointer">
+                            <input type="checkbox" id="checkTutoring" class="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500">
+                            <span>課輔班</span>
+                        </label>
+                    </div>
                 </div>
+
                 <div class="pt-2 flex gap-3">
                     <button type="button" onclick="closeAddPlayerModal()" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold rounded-xl transition">取消</button>
-                    <button type="submit" class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl shadow-md transition">確認新增</button>
+                    <button type="submit" id="submitBtnText" class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl shadow-md transition">確認新增</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Modal 2: Manage Roster Modal -->
+    <!-- Modal: Manage Roster Modal -->
     <div id="manageRosterModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-2xl max-w-2xl w-full shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
             <div class="bg-slate-800 px-6 py-4 text-white flex justify-between items-center">
                 <h3 class="font-bold text-lg flex items-center gap-2">
-                    <i class="fa-solid fa-users-gear"></i> 球員陣容管理
+                    <i class="fa-solid fa-users-gear"></i> 成員陣容管理
                 </h3>
                 <button onclick="togglePlayerManagementModal()" class="text-white/80 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
-                <span class="text-xs font-medium text-slate-600">共 <span id="manageCount">0</span> 位球員</span>
+                <span class="text-xs font-medium text-slate-600">共 <span id="manageCount">0</span> 位成員</span>
                 <button onclick="closeRosterOpenAdd()" class="text-xs bg-emerald-600 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-emerald-700 transition">
-                    + 快速新增球員
+                    + 快速新增成員
                 </button>
             </div>
             <div class="p-6 overflow-y-auto flex-1">
@@ -299,71 +317,76 @@
 
     <!-- Application Script -->
     <script>
-        // --- State Management & Full Roster from Image ---
+        // --- State Management & Full Roster with Expanded Coaches ---
         const DEFAULT_PLAYERS = [
             // 低年級 (二年級)
-            { id: 'p1', name: '何紹睿', grade: '二年級', gradeGroup: '低年級', role: '球員', number: '01' },
-            { id: 'p2', name: '徐芷喬', grade: '二年級', gradeGroup: '低年級', role: '球員', number: '02' },
-            { id: 'p3', name: '許琍旂', grade: '二年級', gradeGroup: '低年級', role: '球員', number: '03' },
-            { id: 'p4', name: '周瑀珊', grade: '二年級', gradeGroup: '低年級', role: '球員', number: '04' },
-            { id: 'p5', name: '林澤宇', grade: '二年級', gradeGroup: '低年級', role: '球員', number: '05' },
-            { id: 'p6', name: '李唯碩', grade: '二年級', gradeGroup: '低年級', role: '球員', number: '06' },
-            { id: 'p7', name: '曾以家', grade: '二年級', gradeGroup: '低年級', role: '球員', number: '07' },
-            { id: 'p8', name: '陳子翔', grade: '二年級', gradeGroup: '低年級', role: '球員', number: '08' },
-            { id: 'p9', name: '邱子茉', grade: '二年級', gradeGroup: '低年級', role: '球員', number: '09' },
-            { id: 'p10', name: '劉湘昀', grade: '二年級', gradeGroup: '低年級', role: '球員', number: '10' },
-            { id: 'p11', name: '徐子皓', grade: '二年級', gradeGroup: '低年級', role: '球員', number: '11' },
-            { id: 'p12', name: '范皓銓', grade: '二年級', gradeGroup: '低年級', role: '球員', number: '12' },
-            { id: 'p13', name: '劉冬孜', grade: '二年級', gradeGroup: '低年級', role: '球員', number: '13' },
+            { id: 'p1', name: '何紹睿', grade: '二年級', gradeGroup: '低年級', isExtra: false, isTutoring: false, number: '01' },
+            { id: 'p2', name: '徐芷喬', grade: '二年級', gradeGroup: '低年級', isExtra: false, isTutoring: false, number: '02' },
+            { id: 'p3', name: '許琍旂', grade: '二年級', gradeGroup: '低年級', isExtra: false, isTutoring: false, number: '03' },
+            { id: 'p4', name: '周瑀珊', grade: '二年級', gradeGroup: '低年級', isExtra: false, isTutoring: false, number: '04' },
+            { id: 'p5', name: '林澤宇', grade: '二年級', gradeGroup: '低年級', isExtra: false, isTutoring: false, number: '05' },
+            { id: 'p6', name: '李唯碩', grade: '二年級', gradeGroup: '低年級', isExtra: false, isTutoring: false, number: '06' },
+            { id: 'p7', name: '曾以家', grade: '二年級', gradeGroup: '低年級', isExtra: false, isTutoring: false, number: '07' },
+            { id: 'p8', name: '陳子翔', grade: '二年級', gradeGroup: '低年級', isExtra: false, isTutoring: false, number: '08' },
+            { id: 'p9', name: '邱子茉', grade: '二年級', gradeGroup: '低年級', isExtra: false, isTutoring: false, number: '09' },
+            { id: 'p10', name: '劉湘昀', grade: '二年級', gradeGroup: '低年級', isExtra: false, isTutoring: false, number: '10' },
+            { id: 'p11', name: '徐子皓', grade: '二年級', gradeGroup: '低年級', isExtra: false, isTutoring: false, number: '11' },
+            { id: 'p12', name: '范皓銓', grade: '二年級', gradeGroup: '低年級', isExtra: false, isTutoring: false, number: '12' },
+            { id: 'p13', name: '劉冬孜', grade: '二年級', gradeGroup: '低年級', isExtra: false, isTutoring: false, number: '13' },
 
             // 中年級 (三年級)
-            { id: 'p14', name: '劉仁皓', grade: '三年級', gradeGroup: '中年級', role: '球員', number: '14' },
-            { id: 'p15', name: '莊至恩', grade: '三年級', gradeGroup: '中年級', role: '球員', number: '15' },
-            { id: 'p16', name: '廖沂清', grade: '三年級', gradeGroup: '中年級', role: '球員', number: '16' },
-            { id: 'p17', name: '張可霓', grade: '三年級', gradeGroup: '中年級', role: '球員', number: '17' },
-            { id: 'p18', name: '林延峰', grade: '三年級', gradeGroup: '中年級', role: '球員', number: '18' },
-            { id: 'p19', name: '胡恒睿', grade: '三年級', gradeGroup: '中年級', role: '球員', number: '19' },
-            { id: 'p20', name: '古易誠', grade: '三年級', gradeGroup: '中年級', role: '球員', number: '20' },
-            { id: 'p21', name: '李亦恩', grade: '三年級', gradeGroup: '中年級', role: '球員', number: '21' },
-            { id: 'p22', name: '葉思彤', grade: '三年級', gradeGroup: '中年級', role: '球員', number: '22' },
-            { id: 'p23', name: '郭宇澄', grade: '三年級', gradeGroup: '中年級', role: '球員', number: '23' },
-            { id: 'p24', name: '陳秉侑', grade: '三年級', gradeGroup: '中年級', role: '球員', number: '24' },
+            { id: 'p14', name: '劉仁皓', grade: '三年級', gradeGroup: '中年級', isExtra: false, isTutoring: false, number: '14' },
+            { id: 'p15', name: '莊至恩', grade: '三年級', gradeGroup: '中年級', isExtra: false, isTutoring: false, number: '15' },
+            { id: 'p16', name: '廖沂清', grade: '三年級', gradeGroup: '中年級', isExtra: false, isTutoring: false, number: '16' },
+            { id: 'p17', name: '張可霓', grade: '三年級', gradeGroup: '中年級', isExtra: false, isTutoring: false, number: '17' },
+            { id: 'p18', name: '林延峰', grade: '三年級', gradeGroup: '中年級', isExtra: false, isTutoring: false, number: '18' },
+            { id: 'p19', name: '胡恒睿', grade: '三年級', gradeGroup: '中年級', isExtra: false, isTutoring: false, number: '19' },
+            { id: 'p20', name: '古易誠', grade: '三年級', gradeGroup: '中年級', isExtra: false, isTutoring: false, number: '20' },
+            { id: 'p21', name: '李亦恩', grade: '三年級', gradeGroup: '中年級', isExtra: false, isTutoring: false, number: '21' },
+            { id: 'p22', name: '葉思彤', grade: '三年級', gradeGroup: '中年級', isExtra: false, isTutoring: false, number: '22' },
+            { id: 'p23', name: '郭宇澄', grade: '三年級', gradeGroup: '中年級', isExtra: false, isTutoring: false, number: '23' },
+            { id: 'p24', name: '陳秉侑', grade: '三年級', gradeGroup: '中年級', isExtra: false, isTutoring: false, number: '24' },
 
             // 中年級 (四年級)
-            { id: 'p25', name: '徐翊宸', grade: '四年級', gradeGroup: '中年級', role: '球員', number: '25' },
-            { id: 'p26', name: '劉展誠', grade: '四年級', gradeGroup: '中年級', role: '球員', number: '26' },
-            { id: 'p27', name: '戴姜宸', grade: '四年級', gradeGroup: '中年級', role: '球員', number: '27' },
-            { id: 'p28', name: '溫沐玄', grade: '四年級', gradeGroup: '中年級', role: '球員', number: '28' },
-            { id: 'p29', name: '鍾定丞', grade: '四年級', gradeGroup: '中年級', role: '球員', number: '29' },
-            { id: 'p30', name: '徐裕棋', grade: '四年級', gradeGroup: '中年級', role: '球員', number: '30' },
-            { id: 'p31', name: '周書帆', grade: '四年級', gradeGroup: '中年級', role: '球員', number: '31' },
-            { id: 'p32', name: '楊翔宇', grade: '四年級', gradeGroup: '中年級', role: '球員', number: '32' },
-            { id: 'p33', name: '林昕璇', grade: '四年級', gradeGroup: '中年級', role: '球員', number: '33' },
+            { id: 'p25', name: '徐翊宸', grade: '四年級', gradeGroup: '中年級', isExtra: false, isTutoring: false, number: '25' },
+            { id: 'p26', name: '劉展誠', grade: '四年級', gradeGroup: '中年級', isExtra: false, isTutoring: false, number: '26' },
+            { id: 'p27', name: '戴姜宸', grade: '四年級', gradeGroup: '中年級', isExtra: false, isTutoring: false, number: '27' },
+            { id: 'p28', name: '溫沐玄', grade: '四年級', gradeGroup: '中年級', isExtra: false, isTutoring: false, number: '28' },
+            { id: 'p29', name: '鍾定丞', grade: '四年級', gradeGroup: '中年級', isExtra: false, isTutoring: false, number: '29' },
+            { id: 'p30', name: '徐裕棋', grade: '四年級', gradeGroup: '中年級', isExtra: false, isTutoring: false, number: '30' },
+            { id: 'p31', name: '周書帆', grade: '四年級', gradeGroup: '中年級', isExtra: false, isTutoring: false, number: '31' },
+            { id: 'p32', name: '楊翔宇', grade: '四年級', gradeGroup: '中年級', isExtra: false, isTutoring: false, number: '32' },
+            { id: 'p33', name: '林昕璇', grade: '四年級', gradeGroup: '中年級', isExtra: false, isTutoring: false, number: '33' },
 
             // 高年級 (五年級)
-            { id: 'p34', name: '劉峻誠', grade: '五年級', gradeGroup: '高年級', role: '球員', number: '34' },
-            { id: 'p35', name: '葉晏澔', grade: '五年級', gradeGroup: '高年級', role: '球員', number: '35' },
-            { id: 'p36', name: '黃宇樂', grade: '五年級', gradeGroup: '高年級', role: '球員', number: '36' },
-            { id: 'p37', name: '劉弈寛', grade: '五年級', gradeGroup: '高年級', role: '球員', number: '37' },
-            { id: 'p38', name: '黃歆甯', grade: '五年級', gradeGroup: '高年級', role: '球員', number: '38' },
-            { id: 'p39', name: '郭哲宇', grade: '五年級', gradeGroup: '高年級', role: '球員', number: '39' },
-            { id: 'p40', name: '陳柏諺', grade: '五年級', gradeGroup: '高年級', role: '球員', number: '40' },
+            { id: 'p34', name: '劉峻誠', grade: '五年級', gradeGroup: '高年級', isExtra: false, isTutoring: false, number: '34' },
+            { id: 'p35', name: '葉晏澔', grade: '五年級', gradeGroup: '高年級', isExtra: false, isTutoring: false, number: '35' },
+            { id: 'p36', name: '黃宇樂', grade: '五年級', gradeGroup: '高年級', isExtra: false, isTutoring: false, number: '36' },
+            { id: 'p37', name: '劉弈寛', grade: '五年級', gradeGroup: '高年級', isExtra: false, isTutoring: false, number: '37' },
+            { id: 'p38', name: '黃歆甯', grade: '五年級', gradeGroup: '高年級', isExtra: false, isTutoring: false, number: '38' },
+            { id: 'p39', name: '郭哲宇', grade: '五年級', gradeGroup: '高年級', isExtra: false, isTutoring: false, number: '39' },
+            { id: 'p40', name: '陳柏諺', grade: '五年級', gradeGroup: '高年級', isExtra: false, isTutoring: false, number: '40' },
 
             // 高年級 (六年級)
-            { id: 'p41', name: '郭友錡', grade: '六年級', gradeGroup: '高年級', role: '球員', number: '41' },
-            { id: 'p42', name: '吳珮瑄', grade: '六年級', gradeGroup: '高年級', role: '球員', number: '42' },
-            { id: 'p43', name: '林邑達', grade: '六年級', gradeGroup: '高年級', role: '球員', number: '43' },
-            { id: 'p44', name: '劉宣菲', grade: '六年級', gradeGroup: '高年級', role: '球員', number: '44' },
+            { id: 'p41', name: '郭友錡', grade: '六年級', gradeGroup: '高年級', isExtra: false, isTutoring: false, number: '41' },
+            { id: 'p42', name: '吳珮瑄', grade: '六年級', gradeGroup: '高年級', isExtra: false, isTutoring: false, number: '42' },
+            { id: 'p43', name: '林邑達', grade: '六年級', gradeGroup: '高年級', isExtra: false, isTutoring: false, number: '43' },
+            { id: 'p44', name: '劉宣菲', grade: '六年級', gradeGroup: '高年級', isExtra: false, isTutoring: false, number: '44' },
 
-            // 教練
-            { id: 'c1', name: '陳教練', grade: '教練', gradeGroup: '教練', role: '教練', number: 'C1' }
+            // 教練群
+            { id: 'c1', name: '陳教練', grade: '教練', gradeGroup: '教練群', isExtra: false, isTutoring: false, number: 'C1' },
+            { id: 'c2', name: '盧盧教練', grade: '教練', gradeGroup: '教練群', isExtra: false, isTutoring: false, number: 'C2' },
+            { id: 'c3', name: '方方教練', grade: '教練', gradeGroup: '教練群', isExtra: false, isTutoring: false, number: 'C3' },
+            { id: 'c4', name: '張張教練', grade: '教練', gradeGroup: '教練群', isExtra: false, isTutoring: false, number: 'C4' },
+            { id: 'c5', name: '彭彭教練', grade: '教練', gradeGroup: '教練群', isExtra: false, isTutoring: false, number: 'C5' }
         ];
 
         const SESSION_NAMES = {
             morning: '晨間訓練',
             afternoon: '下午團練',
-            night: '夜訓',
-            extra: '竹東移地訓練'
+            night: '夜訓 (高年級)',
+            extra: '竹東移地訓練',
+            tutoring: '課輔班'
         };
 
         let players = [];
@@ -384,7 +407,7 @@
 
         // --- Data Persistence Helpers ---
         function loadPlayersFromStorage() {
-            const stored = localStorage.getItem('badminton_players_v2');
+            const stored = localStorage.getItem('badminton_players_v2.7');
             if (stored) {
                 try {
                     players = JSON.parse(stored);
@@ -399,7 +422,7 @@
         }
 
         function savePlayersToStorage() {
-            localStorage.setItem('badminton_players_v2', JSON.stringify(players));
+            localStorage.setItem('badminton_players_v2.7', JSON.stringify(players));
             updatePlayerCounts();
         }
 
@@ -412,7 +435,7 @@
             const date = document.getElementById('attendanceDate').value;
             document.getElementById('currentDateBadge').innerText = date;
             
-            const stored = localStorage.getItem(`badminton_attendance_v2_${date}`);
+            const stored = localStorage.getItem(`badminton_attendance_v2.7_${date}`);
             if (stored) {
                 try {
                     attendanceRecord = JSON.parse(stored);
@@ -430,7 +453,7 @@
 
         function saveAttendanceForDate() {
             const date = document.getElementById('attendanceDate').value;
-            localStorage.setItem(`badminton_attendance_v2_${date}`, JSON.stringify(attendanceRecord));
+            localStorage.setItem(`badminton_attendance_v2.7_${date}`, JSON.stringify(attendanceRecord));
             updateAllBadges();
             updateStats();
         }
@@ -440,7 +463,8 @@
                 morning: {},
                 afternoon: {},
                 night: {},
-                extra: {}
+                extra: {},
+                tutoring: {}
             };
         }
 
@@ -458,6 +482,17 @@
             activeTab.classList.add('bg-emerald-600', 'text-white', 'shadow-md');
 
             document.getElementById('currentSessionTitle').innerText = SESSION_NAMES[sessionKey];
+
+            const hint = document.getElementById('emptyStateHint');
+            if (sessionKey === 'extra') {
+                hint.innerText = '提示：若要在此時段顯示，請至成員陣容管理勾選「竹東移地訓練」';
+            } else if (sessionKey === 'tutoring') {
+                hint.innerText = '提示：若要在此時段顯示，請至成員陣容管理勾選「課輔班」';
+            } else if (sessionKey === 'night') {
+                hint.innerText = '提示：夜訓時段僅顯示高年級與教練群成員';
+            } else {
+                hint.innerText = '請嘗試變更搜尋關鍵字或分組篩選條件';
+            }
 
             renderAttendanceList();
             updateStats();
@@ -511,7 +546,10 @@
             if (!attendanceRecord[currentSession]) {
                 attendanceRecord[currentSession] = {};
             }
-            players.forEach(p => {
+            
+            let targetPlayers = getSessionFilteredPlayers();
+
+            targetPlayers.forEach(p => {
                 if (!attendanceRecord[currentSession][p.id]) {
                     attendanceRecord[currentSession][p.id] = { status: '', note: '' };
                 }
@@ -519,7 +557,19 @@
             });
             saveAttendanceForDate();
             renderAttendanceList();
-            showToast(status === 'present' ? '已將所有球員標記為【出席】' : '已重置點名紀錄');
+            showToast(status === 'present' ? '已將當前時段成員標記為【出席】' : '已重置點名紀錄');
+        }
+
+        function getSessionFilteredPlayers() {
+            if (currentSession === 'extra') {
+                return players.filter(p => p.isExtra);
+            } else if (currentSession === 'tutoring') {
+                return players.filter(p => p.isTutoring);
+            } else if (currentSession === 'night') {
+                // 夜訓只抓取高年級與教練群
+                return players.filter(p => p.gradeGroup === '高年級' || p.gradeGroup === '教練群');
+            }
+            return players;
         }
 
         // --- UI Rendering ---
@@ -530,7 +580,9 @@
 
             grid.innerHTML = '';
 
-            const filtered = players.filter(p => {
+            let listToRender = getSessionFilteredPlayers();
+
+            const filtered = listToRender.filter(p => {
                 const matchName = p.name.toLowerCase().includes(searchVal) || (p.number && p.number.toLowerCase().includes(searchVal)) || p.grade.includes(searchVal);
                 const matchGrade = (currentGradeFilter === 'all') || (p.gradeGroup === currentGradeFilter);
                 return matchName && matchGrade;
@@ -560,6 +612,11 @@
                 if (p.gradeGroup === '高年級') gradeColor = 'bg-purple-100 text-purple-700';
                 else if (p.gradeGroup === '中年級') gradeColor = 'bg-blue-100 text-blue-700';
                 else if (p.gradeGroup === '低年級') gradeColor = 'bg-amber-100 text-amber-700';
+                else if (p.gradeGroup === '教練群') gradeColor = 'bg-teal-100 text-teal-700';
+
+                let badgeHtml = '';
+                if (p.isExtra) badgeHtml += `<span class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">移地訓練</span>`;
+                if (p.isTutoring) badgeHtml += `<span class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-cyan-100 text-cyan-700">課輔班</span>`;
 
                 const card = document.createElement('div');
                 card.className = `bg-white border rounded-2xl p-4 transition shadow-sm hover:shadow-md flex flex-col justify-between ${
@@ -571,16 +628,17 @@
 
                 card.innerHTML = `
                     <div>
-                        <!-- Header & Player Info -->
+                        <!-- Header & Member Info -->
                         <div class="flex justify-between items-start mb-3">
                             <div class="flex items-center space-x-3">
                                 <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center font-bold text-slate-700 text-sm border border-slate-200">
                                     ${p.number ? p.number : p.name.substring(0, 1)}
                                 </div>
                                 <div>
-                                    <h4 class="font-bold text-slate-800 text-base flex items-center gap-1.5">
+                                    <h4 class="font-bold text-slate-800 text-base flex items-center gap-1.5 flex-wrap">
                                         ${p.name}
                                         <span class="text-[10px] font-medium px-2 py-0.5 rounded-full ${gradeColor}">${p.grade}</span>
+                                        ${badgeHtml}
                                     </h4>
                                     <p class="text-xs text-slate-400">編號: ${p.number || '無'} | 分組: ${p.gradeGroup || '一般'}</p>
                                 </div>
@@ -632,15 +690,17 @@
             let lowPresent = 0, lowTotal = 0;
             let midPresent = 0, midTotal = 0;
             let highPresent = 0, highTotal = 0;
+            let coachPresent = 0, coachTotal = 0;
 
-            players.forEach(p => {
+            let denominatorPlayers = getSessionFilteredPlayers();
+
+            denominatorPlayers.forEach(p => {
                 const status = sessionData[p.id]?.status;
                 if (status === 'present') presentCount++;
                 else if (status === 'leave') leaveCount++;
                 else if (status === 'late') lateCount++;
                 else if (status === 'absent') absentCount++;
 
-                // Grade stats calculation
                 if (p.gradeGroup === '低年級') {
                     lowTotal++;
                     if (status === 'present') lowPresent++;
@@ -650,6 +710,9 @@
                 } else if (p.gradeGroup === '高年級') {
                     highTotal++;
                     if (status === 'present') highPresent++;
+                } else if (p.gradeGroup === '教練群') {
+                    coachTotal++;
+                    if (status === 'present') coachPresent++;
                 }
             });
 
@@ -661,43 +724,86 @@
             document.getElementById('stat-low-grade').innerText = `${lowPresent}/${lowTotal}`;
             document.getElementById('stat-mid-grade').innerText = `${midPresent}/${midTotal}`;
             document.getElementById('stat-high-grade').innerText = `${highPresent}/${highTotal}`;
+            document.getElementById('stat-coach-group').innerText = `${coachPresent}/${coachTotal}`;
 
-            const total = players.length;
+            const total = denominatorPlayers.length;
             const rate = total > 0 ? Math.round((presentCount / total) * 100) : 0;
             document.getElementById('stat-rate').innerText = `${rate}%`;
         }
 
         function updateAllBadges() {
-            ['morning', 'afternoon', 'night', 'extra'].forEach(sessionKey => {
+            ['morning', 'afternoon', 'night', 'extra', 'tutoring'].forEach(sessionKey => {
                 const sData = attendanceRecord[sessionKey] || {};
                 let count = 0;
-                players.forEach(p => {
+                
+                let targetList = players;
+                if (sessionKey === 'extra') targetList = players.filter(p => p.isExtra);
+                if (sessionKey === 'tutoring') targetList = players.filter(p => p.isTutoring);
+                if (sessionKey === 'night') targetList = players.filter(p => p.gradeGroup === '高年級' || p.gradeGroup === '教練群');
+
+                let total = targetList.length;
+                targetList.forEach(p => {
                     if (sData[p.id]?.status === 'present') count++;
                 });
+
                 const badge = document.getElementById(`badge-${sessionKey}`);
                 if (badge) {
-                    badge.innerText = `${count}/${players.length}`;
+                    badge.innerText = `${count}/${total}`;
                 }
             });
         }
 
-        // --- Player Management Modals & Functions ---
-        function openAddPlayerModal() {
-            document.getElementById('addPlayerModal').classList.remove('hidden');
+        // --- Member Management & Edit Modal ---
+        function openAddPlayerModal(editId = null) {
+            const rosterModal = document.getElementById('manageRosterModal');
+            if (!rosterModal.classList.contains('hidden')) {
+                rosterModal.classList.add('hidden');
+            }
+
+            const modal = document.getElementById('addPlayerModal');
+            const title = document.getElementById('modalTitle');
+            const submitText = document.getElementById('submitBtnText');
+            
+            document.getElementById('editPlayerId').value = '';
+            document.getElementById('newPlayerName').value = '';
+            document.getElementById('newPlayerGrade').value = '二年級';
+            document.getElementById('newPlayerNumber').value = '';
+            document.getElementById('checkExtra').checked = false;
+            document.getElementById('checkTutoring').checked = false;
+
+            if (editId) {
+                const target = players.find(p => p.id === editId);
+                if (target) {
+                    title.innerHTML = `<i class="fa-solid fa-user-pen"></i> 編輯成員`;
+                    submitText.innerText = '儲存修改';
+                    document.getElementById('editPlayerId').value = target.id;
+                    document.getElementById('newPlayerName').value = target.name;
+                    document.getElementById('newPlayerGrade').value = target.grade;
+                    document.getElementById('newPlayerNumber').value = target.number || '';
+                    document.getElementById('checkExtra').checked = !!target.isExtra;
+                    document.getElementById('checkTutoring').checked = !!target.isTutoring;
+                }
+            } else {
+                title.innerHTML = `<i class="fa-solid fa-user-plus"></i> 新增成員`;
+                submitText.innerText = '確認新增';
+            }
+
+            modal.classList.remove('hidden');
         }
 
         function closeAddPlayerModal() {
             document.getElementById('addPlayerModal').classList.add('hidden');
-            document.getElementById('newPlayerName').value = '';
-            document.getElementById('newPlayerNumber').value = '';
+            togglePlayerManagementModal();
         }
 
-        function handleAddPlayer(e) {
+        function handleSavePlayer(e) {
             e.preventDefault();
+            const editId = document.getElementById('editPlayerId').value;
             const name = document.getElementById('newPlayerName').value.trim();
             const grade = document.getElementById('newPlayerGrade').value;
-            const role = document.getElementById('newPlayerRole').value;
             const number = document.getElementById('newPlayerNumber').value.trim();
+            const isExtra = document.getElementById('checkExtra').checked;
+            const isTutoring = document.getElementById('checkTutoring').checked;
 
             if (!name) return;
 
@@ -705,24 +811,39 @@
             if (grade === '五年級' || grade === '六年級') gradeGroup = '高年級';
             else if (grade === '三年級' || grade === '四年級') gradeGroup = '中年級';
             else if (grade === '一年級' || grade === '二年級') gradeGroup = '低年級';
-            else gradeGroup = '其他';
+            else if (grade === '教練') gradeGroup = '教練群';
 
-            const newPlayer = {
-                id: 'p_' + Date.now(),
-                name,
-                grade,
-                gradeGroup,
-                role,
-                number
-            };
+            if (editId) {
+                const target = players.find(p => p.id === editId);
+                if (target) {
+                    target.name = name;
+                    target.grade = grade;
+                    target.gradeGroup = gradeGroup;
+                    target.number = number;
+                    target.isExtra = isExtra;
+                    target.isTutoring = isTutoring;
+                }
+                showToast(`已成功更新成員：${name}`);
+            } else {
+                const newPlayer = {
+                    id: 'p_' + Date.now(),
+                    name,
+                    grade,
+                    gradeGroup,
+                    number,
+                    isExtra,
+                    isTutoring
+                };
+                players.push(newPlayer);
+                showToast(`已成功新增成員：${name}`);
+            }
 
-            players.push(newPlayer);
             savePlayersToStorage();
-            closeAddPlayerModal();
+            document.getElementById('addPlayerModal').classList.add('hidden');
             renderAttendanceList();
             updateAllBadges();
             updateStats();
-            showToast(`已成功新增球員：${name} (${grade})`);
+            togglePlayerManagementModal();
         }
 
         function togglePlayerManagementModal() {
@@ -745,6 +866,11 @@
             container.innerHTML = '';
 
             players.forEach((p, idx) => {
+                let badgeText = [];
+                if (p.isExtra) badgeText.push('移地訓練');
+                if (p.isTutoring) badgeText.push('課輔班');
+                const badgeStr = badgeText.length > 0 ? `<span class="text-[10px] px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded ml-2 border border-emerald-200">${badgeText.join(', ')}</span>` : '';
+
                 const item = document.createElement('div');
                 item.className = 'flex items-center justify-between p-3 bg-slate-50 border border-slate-200 rounded-xl';
                 item.innerHTML = `
@@ -756,11 +882,17 @@
                         <div>
                             <span class="font-bold text-slate-800 text-sm">${p.name}</span>
                             <span class="text-xs px-2 py-0.5 bg-slate-200 text-slate-600 rounded-md ml-2">${p.grade}</span>
+                            ${badgeStr}
                         </div>
                     </div>
-                    <button onclick="removePlayer('${p.id}')" class="text-rose-500 hover:text-rose-700 p-2 text-xs font-medium rounded-lg hover:bg-rose-50 transition">
-                        <i class="fa-solid fa-trash-can mr-1"></i>刪除
-                    </button>
+                    <div class="flex items-center gap-1">
+                        <button onclick="openAddPlayerModal('${p.id}')" class="text-sky-600 hover:text-sky-800 p-2 text-xs font-medium rounded-lg hover:bg-sky-50 transition">
+                            <i class="fa-solid fa-pen-to-square mr-1"></i>編輯
+                        </button>
+                        <button onclick="removePlayer('${p.id}')" class="text-rose-500 hover:text-rose-700 p-2 text-xs font-medium rounded-lg hover:bg-rose-50 transition">
+                            <i class="fa-solid fa-trash-can mr-1"></i>刪除
+                        </button>
+                    </div>
                 `;
                 container.appendChild(item);
             });
@@ -769,14 +901,14 @@
         function removePlayer(id) {
             const target = players.find(p => p.id === id);
             if (!target) return;
-            if (confirm(`確定要刪除球員【${target.name}】嗎？`)) {
+            if (confirm(`確定要刪除成員【${target.name}】嗎？`)) {
                 players = players.filter(p => p.id !== id);
                 savePlayersToStorage();
                 renderRosterList();
                 renderAttendanceList();
                 updateAllBadges();
                 updateStats();
-                showToast(`已刪除球員 ${target.name}`);
+                showToast(`已刪除成員 ${target.name}`);
             }
         }
 
@@ -784,13 +916,18 @@
         function exportCSV() {
             const date = document.getElementById('attendanceDate').value;
             let csvContent = "\uFEFF"; // UTF-8 BOM
-            csvContent += `日期,時段,球員姓名,年級,分組,出席狀態,備註\n`;
+            csvContent += `日期,時段,成員姓名,年級分類,分組,移地訓練,課輔班,出席狀態,備註\n`;
 
-            ['morning', 'afternoon', 'night', 'extra'].forEach(sKey => {
+            ['morning', 'afternoon', 'night', 'extra', 'tutoring'].forEach(sKey => {
                 const sName = SESSION_NAMES[sKey];
                 const sData = attendanceRecord[sKey] || {};
 
-                players.forEach(p => {
+                let exportList = players;
+                if (sKey === 'extra') exportList = players.filter(p => p.isExtra);
+                if (sKey === 'tutoring') exportList = players.filter(p => p.isTutoring);
+                if (sKey === 'night') exportList = players.filter(p => p.gradeGroup === '高年級' || p.gradeGroup === '教練群');
+
+                exportList.forEach(p => {
                     const rec = sData[p.id] || {};
                     let statusText = '未標記';
                     if (rec.status === 'present') statusText = '出席';
@@ -799,7 +936,9 @@
                     else if (rec.status === 'absent') statusText = '缺席';
 
                     const note = (rec.note || '').replace(/,/g, ' ');
-                    csvContent += `${date},${sName},${p.name},${p.grade},${p.gradeGroup},${statusText},${note}\n`;
+                    const extraStr = p.isExtra ? '是' : '否';
+                    const tutoringStr = p.isTutoring ? '是' : '否';
+                    csvContent += `${date},${sName},${p.name},${p.grade},${p.gradeGroup},${extraStr},${tutoringStr},${statusText},${note}\n`;
                 });
             });
 
