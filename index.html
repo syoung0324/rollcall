@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>羽球隊每日點名系統</title>
+    <title>羽球隊每日點名系統 - 松林國小</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -34,7 +34,6 @@
         }
     </script>
     <style>
-        /* Custom scrollbar */
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -48,10 +47,6 @@
         }
         ::-webkit-scrollbar-thumb:hover {
             background: #94a3b8;
-        }
-        .status-btn-active {
-            ring-2: 2px;
-            transform: scale(1.05);
         }
     </style>
 </head>
@@ -67,7 +62,7 @@
                 <div>
                     <h1 class="text-xl sm:text-2xl font-bold tracking-tight flex items-center gap-2">
                         羽球隊每日點名系統
-                        <span class="text-xs bg-emerald-500/30 text-emerald-200 border border-emerald-400/30 px-2 py-0.5 rounded-full font-normal">v1.0</span>
+                        <span class="text-xs bg-emerald-500/30 text-emerald-200 border border-emerald-400/30 px-2 py-0.5 rounded-full font-normal">v2.0</span>
                     </h1>
                     <p class="text-xs text-emerald-100 opacity-90">Badminton Team Attendance Management</p>
                 </div>
@@ -181,20 +176,20 @@
                 </div>
             </div>
 
-            <!-- Search & Filter Controls -->
+            <!-- Search & Grade Group Filter Controls -->
             <div class="flex flex-col sm:flex-row justify-between items-center gap-3 mb-4">
                 <div class="relative w-full sm:w-64">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
                     <input type="text" id="searchInput" oninput="renderAttendanceList()" placeholder="搜尋球員姓名..." class="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition">
                 </div>
+                
+                <!-- Grade Group Filters -->
                 <div class="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
-                    <span class="text-xs text-slate-400 whitespace-nowrap">角色篩選:</span>
-                    <button onclick="setRoleFilter('all')" id="filter-role-all" class="role-filter-btn text-xs px-2.5 py-1 rounded-lg bg-emerald-600 text-white font-medium whitespace-nowrap">全部</button>
-                    <button onclick="setRoleFilter('男單')" id="filter-role-男單" class="role-filter-btn text-xs px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium whitespace-nowrap">男單</button>
-                    <button onclick="setRoleFilter('女單')" id="filter-role-女單" class="role-filter-btn text-xs px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium whitespace-nowrap">女單</button>
-                    <button onclick="setRoleFilter('男雙')" id="filter-role-男雙" class="role-filter-btn text-xs px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium whitespace-nowrap">男雙</button>
-                    <button onclick="setRoleFilter('女雙')" id="filter-role-女雙" class="role-filter-btn text-xs px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium whitespace-nowrap">女雙</button>
-                    <button onclick="setRoleFilter('教練')" id="filter-role-教練" class="role-filter-btn text-xs px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium whitespace-nowrap">教練/球助</button>
+                    <span class="text-xs text-slate-400 whitespace-nowrap"><i class="fa-solid fa-filter mr-1"></i>分組篩選:</span>
+                    <button onclick="setGradeFilter('all')" id="filter-grade-all" class="grade-filter-btn text-xs px-3 py-1.5 rounded-lg bg-emerald-600 text-white font-medium whitespace-nowrap transition shadow-sm">全部顯示</button>
+                    <button onclick="setGradeFilter('高年級')" id="filter-grade-高年級" class="grade-filter-btn text-xs px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium whitespace-nowrap transition">高年級 (五六年級)</button>
+                    <button onclick="setGradeFilter('中年級')" id="filter-grade-中年級" class="grade-filter-btn text-xs px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium whitespace-nowrap transition">中年級 (三四年級)</button>
+                    <button onclick="setGradeFilter('低年級')" id="filter-grade-低年級" class="grade-filter-btn text-xs px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium whitespace-nowrap transition">低年級 (一二年級)</button>
                 </div>
             </div>
 
@@ -207,7 +202,7 @@
             <div id="emptyState" class="hidden text-center py-12">
                 <i class="fa-solid fa-user-slash text-4xl text-slate-300 mb-3"></i>
                 <p class="text-slate-500 font-medium">尚未搜尋到符合條件的球員</p>
-                <p class="text-xs text-slate-400 mt-1">請嘗試變更搜尋關鍵字或新增球員</p>
+                <p class="text-xs text-slate-400 mt-1">請嘗試變更搜尋關鍵字或分組篩選條件</p>
             </div>
         </div>
     </main>
@@ -224,26 +219,26 @@
             <form onsubmit="handleAddPlayer(event)" class="p-6 space-y-4">
                 <div>
                     <label class="block text-xs font-semibold text-slate-700 mb-1">球員姓名 <span class="text-rose-500">*</span></label>
-                    <input type="text" id="newPlayerName" required placeholder="請輸入姓名 (例：戴資穎)" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+                    <input type="text" id="newPlayerName" required placeholder="請輸入姓名 (例：林小明)" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">性別</label>
-                        <select id="newPlayerGender" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
-                            <option value="男">男 ♂</option>
-                            <option value="女">女 ♀</option>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">年級</label>
+                        <select id="newPlayerGrade" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+                            <option value="一年級">一年級 (低年級)</option>
+                            <option value="二年級" selected>二年級 (低年級)</option>
+                            <option value="三年級">三年級 (中年級)</option>
+                            <option value="四年級">四年級 (中年級)</option>
+                            <option value="五年級">五年級 (高年級)</option>
+                            <option value="六年級">六年級 (高年級)</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">主要角色/項目</label>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">身分/角色</label>
                         <select id="newPlayerRole" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
-                            <option value="男單">男單</option>
-                            <option value="女單">女單</option>
-                            <option value="男雙">男雙</option>
-                            <option value="女雙">女雙</option>
-                            <option value="混雙">混雙</option>
+                            <option value="球員">球員</option>
                             <option value="教練">教練</option>
-                            <option value="體能師">體能師</option>
+                            <option value="球助">球助</option>
                         </select>
                     </div>
                 </div>
@@ -295,16 +290,64 @@
 
     <!-- Application Script -->
     <script>
-        // --- State Management ---
+        // --- State Management & Full Roster from Image ---
         const DEFAULT_PLAYERS = [
-            { id: 'p1', name: '周天成', gender: '男', role: '男單', number: '01' },
-            { id: 'p2', name: '戴資穎', gender: '女', role: '女單', number: '02' },
-            { id: 'p3', name: '李洋', gender: '男', role: '男雙', number: '03' },
-            { id: 'p4', name: '王齊麟', gender: '男', role: '男雙', number: '04' },
-            { id: 'p5', name: '許玟琪', gender: '女', role: '女單', number: '05' },
-            { id: 'p6', name: '鄧淳薫', gender: '女', role: '女雙', number: '06' },
-            { id: 'p7', name: '陳宏麟', gender: '男', role: '教練', number: 'C1' },
-            { id: 'p8', name: '葉宏蔚', gender: '男', role: '混雙', number: '08' }
+            // 低年級 (二年級)
+            { id: 'p1', name: '何紹睿', grade: '二年級', gradeGroup: '低年級', role: '球員', number: '01' },
+            { id: 'p2', name: '徐芷喬', grade: '二年級', gradeGroup: '低年級', role: '球員', number: '02' },
+            { id: 'p3', name: '許琍旂', grade: '二年級', gradeGroup: '低年級', role: '球員', number: '03' },
+            { id: 'p4', name: '周瑀珊', grade: '二年級', gradeGroup: '低年級', role: '球員', number: '04' },
+            { id: 'p5', name: '林澤宇', grade: '二年級', gradeGroup: '低年級', role: '球員', number: '05' },
+            { id: 'p6', name: '李唯碩', grade: '二年級', gradeGroup: '低年級', role: '球員', number: '06' },
+            { id: 'p7', name: '曾以家', grade: '二年級', gradeGroup: '低年級', role: '球員', number: '07' },
+            { id: 'p8', name: '陳子翔', grade: '二年級', gradeGroup: '低年級', role: '球員', number: '08' },
+            { id: 'p9', name: '邱子茉', grade: '二年級', gradeGroup: '低年級', role: '球員', number: '09' },
+            { id: 'p10', name: '劉湘昀', grade: '二年級', gradeGroup: '低年級', role: '球員', number: '10' },
+            { id: 'p11', name: '徐子皓', grade: '二年級', gradeGroup: '低年級', role: '球員', number: '11' },
+            { id: 'p12', name: '范皓銓', grade: '二年級', gradeGroup: '低年級', role: '球員', number: '12' },
+            { id: 'p13', name: '劉冬孜', grade: '二年級', gradeGroup: '低年級', role: '球員', number: '13' },
+
+            // 中年級 (三年級)
+            { id: 'p14', name: '劉仁皓', grade: '三年級', gradeGroup: '中年級', role: '球員', number: '14' },
+            { id: 'p15', name: '莊至恩', grade: '三年級', gradeGroup: '中年級', role: '球員', number: '15' },
+            { id: 'p16', name: '廖沂清', grade: '三年級', gradeGroup: '中年級', role: '球員', number: '16' },
+            { id: 'p17', name: '張可霓', grade: '三年級', gradeGroup: '中年級', role: '球員', number: '17' },
+            { id: 'p18', name: '林延峰', grade: '三年級', gradeGroup: '中年級', role: '球員', number: '18' },
+            { id: 'p19', name: '胡恒睿', grade: '三年級', gradeGroup: '中年級', role: '球員', number: '19' },
+            { id: 'p20', name: '古易誠', grade: '三年級', gradeGroup: '中年級', role: '球員', number: '20' },
+            { id: 'p21', name: '李亦恩', grade: '三年級', gradeGroup: '中年級', role: '球員', number: '21' },
+            { id: 'p22', name: '葉思彤', grade: '三年級', gradeGroup: '中年級', role: '球員', number: '22' },
+            { id: 'p23', name: '郭宇澄', grade: '三年級', gradeGroup: '中年級', role: '球員', number: '23' },
+            { id: 'p24', name: '陳秉侑', grade: '三年級', gradeGroup: '中年級', role: '球員', number: '24' },
+
+            // 中年級 (四年級)
+            { id: 'p25', name: '徐翊宸', grade: '四年級', gradeGroup: '中年級', role: '球員', number: '25' },
+            { id: 'p26', name: '劉展誠', grade: '四年級', gradeGroup: '中年級', role: '球員', number: '26' },
+            { id: 'p27', name: '戴姜宸', grade: '四年級', gradeGroup: '中年級', role: '球員', number: '27' },
+            { id: 'p28', name: '溫沐玄', grade: '四年級', gradeGroup: '中年級', role: '球員', number: '28' },
+            { id: 'p29', name: '鍾定丞', grade: '四年級', gradeGroup: '中年級', role: '球員', number: '29' },
+            { id: 'p30', name: '徐裕棋', grade: '四年級', gradeGroup: '中年級', role: '球員', number: '30' },
+            { id: 'p31', name: '周書帆', grade: '四年級', gradeGroup: '中年級', role: '球員', number: '31' },
+            { id: 'p32', name: '楊翔宇', grade: '四年級', gradeGroup: '中年級', role: '球員', number: '32' },
+            { id: 'p33', name: '林昕璇', grade: '四年級', gradeGroup: '中年級', role: '球員', number: '33' },
+
+            // 高年級 (五年級)
+            { id: 'p34', name: '劉峻誠', grade: '五年級', gradeGroup: '高年級', role: '球員', number: '34' },
+            { id: 'p35', name: '葉晏澔', grade: '五年級', gradeGroup: '高年級', role: '球員', number: '35' },
+            { id: 'p36', name: '黃宇樂', grade: '五年級', gradeGroup: '高年級', role: '球員', number: '36' },
+            { id: 'p37', name: '劉弈寛', grade: '五年級', gradeGroup: '高年級', role: '球員', number: '37' },
+            { id: 'p38', name: '黃歆甯', grade: '五年級', gradeGroup: '高年級', role: '球員', number: '38' },
+            { id: 'p39', name: '郭哲宇', grade: '五年級', gradeGroup: '高年級', role: '球員', number: '39' },
+            { id: 'p40', name: '陳柏諺', grade: '五年級', gradeGroup: '高年級', role: '球員', number: '40' },
+
+            // 高年級 (六年級)
+            { id: 'p41', name: '郭友錡', grade: '六年級', gradeGroup: '高年級', role: '球員', number: '41' },
+            { id: 'p42', name: '吳珮瑄', grade: '六年級', gradeGroup: '高年級', role: '球員', number: '42' },
+            { id: 'p43', name: '林邑達', grade: '六年級', gradeGroup: '高年級', role: '球員', number: '43' },
+            { id: 'p44', name: '劉宣菲', grade: '六年級', gradeGroup: '高年級', role: '球員', number: '44' },
+
+            // 教練
+            { id: 'c1', name: '陳教練', grade: '教練', gradeGroup: '教練', role: '教練', number: 'C1' }
         ];
 
         const SESSION_NAMES = {
@@ -316,12 +359,11 @@
 
         let players = [];
         let currentSession = 'morning';
-        let currentRoleFilter = 'all';
-        let attendanceRecord = {}; // Structure: { "2026-11-09": { morning: { p1: { status: 'present', note: '' } } } }
+        let currentGradeFilter = 'all';
+        let attendanceRecord = {}; 
 
         // --- Init Function ---
         window.onload = function() {
-            // Set date to today default
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('attendanceDate').value = today;
             document.getElementById('currentDateBadge').innerText = today;
@@ -333,7 +375,7 @@
 
         // --- Data Persistence Helpers ---
         function loadPlayersFromStorage() {
-            const stored = localStorage.getItem('badminton_players');
+            const stored = localStorage.getItem('badminton_players_v2');
             if (stored) {
                 try {
                     players = JSON.parse(stored);
@@ -344,12 +386,15 @@
                 players = [...DEFAULT_PLAYERS];
                 savePlayersToStorage();
             }
-            document.getElementById('totalPlayerCount').innerText = players.length;
-            document.getElementById('manageCount').innerText = players.length;
+            updatePlayerCounts();
         }
 
         function savePlayersToStorage() {
-            localStorage.setItem('badminton_players', JSON.stringify(players));
+            localStorage.setItem('badminton_players_v2', JSON.stringify(players));
+            updatePlayerCounts();
+        }
+
+        function updatePlayerCounts() {
             document.getElementById('totalPlayerCount').innerText = players.length;
             document.getElementById('manageCount').innerText = players.length;
         }
@@ -358,7 +403,7 @@
             const date = document.getElementById('attendanceDate').value;
             document.getElementById('currentDateBadge').innerText = date;
             
-            const stored = localStorage.getItem(`badminton_attendance_${date}`);
+            const stored = localStorage.getItem(`badminton_attendance_v2_${date}`);
             if (stored) {
                 try {
                     attendanceRecord = JSON.parse(stored);
@@ -376,7 +421,7 @@
 
         function saveAttendanceForDate() {
             const date = document.getElementById('attendanceDate').value;
-            localStorage.setItem(`badminton_attendance_${date}`, JSON.stringify(attendanceRecord));
+            localStorage.setItem(`badminton_attendance_v2_${date}`, JSON.stringify(attendanceRecord));
             updateAllBadges();
             updateStats();
         }
@@ -390,11 +435,10 @@
             };
         }
 
-        // --- Session & Filter Navigation ---
+        // --- Session & Grade Filter Navigation ---
         function switchSession(sessionKey) {
             currentSession = sessionKey;
             
-            // Highlight Tab Buttons
             document.querySelectorAll('.session-tab').forEach(tab => {
                 tab.classList.remove('bg-emerald-600', 'text-white', 'shadow-md');
                 tab.classList.add('bg-transparent', 'text-slate-600', 'hover:bg-slate-100');
@@ -404,23 +448,22 @@
             activeTab.classList.remove('bg-transparent', 'text-slate-600', 'hover:bg-slate-100');
             activeTab.classList.add('bg-emerald-600', 'text-white', 'shadow-md');
 
-            // Update Titles
             document.getElementById('currentSessionTitle').innerText = SESSION_NAMES[sessionKey];
 
             renderAttendanceList();
             updateStats();
         }
 
-        function setRoleFilter(role) {
-            currentRoleFilter = role;
-            document.querySelectorAll('.role-filter-btn').forEach(btn => {
-                btn.classList.remove('bg-emerald-600', 'text-white');
+        function setGradeFilter(group) {
+            currentGradeFilter = group;
+            document.querySelectorAll('.grade-filter-btn').forEach(btn => {
+                btn.classList.remove('bg-emerald-600', 'text-white', 'shadow-sm');
                 btn.classList.add('bg-slate-100', 'text-slate-600', 'hover:bg-slate-200');
             });
-            const activeBtn = document.getElementById(`filter-role-${role}`);
+            const activeBtn = document.getElementById(`filter-grade-${group}`);
             if (activeBtn) {
                 activeBtn.classList.remove('bg-slate-100', 'text-slate-600', 'hover:bg-slate-200');
-                activeBtn.classList.add('bg-emerald-600', 'text-white');
+                activeBtn.classList.add('bg-emerald-600', 'text-white', 'shadow-sm');
             }
             renderAttendanceList();
         }
@@ -434,7 +477,6 @@
                 attendanceRecord[currentSession][playerId] = { status: '', note: '' };
             }
             
-            // Toggle off if clicking the same status
             if (attendanceRecord[currentSession][playerId].status === status) {
                 attendanceRecord[currentSession][playerId].status = '';
             } else {
@@ -480,9 +522,9 @@
             grid.innerHTML = '';
 
             const filtered = players.filter(p => {
-                const matchName = p.name.toLowerCase().includes(searchVal) || (p.number && p.number.toLowerCase().includes(searchVal));
-                const matchRole = (currentRoleFilter === 'all') || (p.role === currentRoleFilter);
-                return matchName && matchRole;
+                const matchName = p.name.toLowerCase().includes(searchVal) || (p.number && p.number.toLowerCase().includes(searchVal)) || p.grade.includes(searchVal);
+                const matchGrade = (currentGradeFilter === 'all') || (p.gradeGroup === currentGradeFilter);
+                return matchName && matchGrade;
             });
 
             if (filtered.length === 0) {
@@ -500,11 +542,16 @@
                 const pRecord = sessionData[p.id] || { status: '', note: '' };
                 const status = pRecord.status;
 
-                // Status Button Styling helper
                 const isPresent = status === 'present';
                 const isLeave = status === 'leave';
                 const isLate = status === 'late';
                 const isAbsent = status === 'absent';
+
+                // Grade badge color mapping
+                let gradeColor = 'bg-slate-100 text-slate-700';
+                if (p.gradeGroup === '高年級') gradeColor = 'bg-purple-100 text-purple-700';
+                else if (p.gradeGroup === '中年級') gradeColor = 'bg-blue-100 text-blue-700';
+                else if (p.gradeGroup === '低年級') gradeColor = 'bg-amber-100 text-amber-700';
 
                 const card = document.createElement('div');
                 card.className = `bg-white border rounded-2xl p-4 transition shadow-sm hover:shadow-md flex flex-col justify-between ${
@@ -525,9 +572,9 @@
                                 <div>
                                     <h4 class="font-bold text-slate-800 text-base flex items-center gap-1.5">
                                         ${p.name}
-                                        <span class="text-[10px] font-medium px-2 py-0.5 rounded-full ${p.gender === '女' ? 'bg-pink-100 text-pink-700' : 'bg-blue-100 text-blue-700'}">${p.role}</span>
+                                        <span class="text-[10px] font-medium px-2 py-0.5 rounded-full ${gradeColor}">${p.grade}</span>
                                     </h4>
-                                    <p class="text-xs text-slate-400">編號: ${p.number || '無'}</p>
+                                    <p class="text-xs text-slate-400">編號: ${p.number || '無'} | 分組: ${p.gradeGroup || '一般'}</p>
                                 </div>
                             </div>
                         </div>
@@ -620,16 +667,23 @@
         function handleAddPlayer(e) {
             e.preventDefault();
             const name = document.getElementById('newPlayerName').value.trim();
-            const gender = document.getElementById('newPlayerGender').value;
+            const grade = document.getElementById('newPlayerGrade').value;
             const role = document.getElementById('newPlayerRole').value;
             const number = document.getElementById('newPlayerNumber').value.trim();
 
             if (!name) return;
 
+            let gradeGroup = '低年級';
+            if (grade === '五年級' || grade === '六年級') gradeGroup = '高年級';
+            else if (grade === '三年級' || grade === '四年級') gradeGroup = '中年級';
+            else if (grade === '一年級' || grade === '二年級') gradeGroup = '低年級';
+            else gradeGroup = '其他';
+
             const newPlayer = {
                 id: 'p_' + Date.now(),
                 name,
-                gender,
+                grade,
+                gradeGroup,
                 role,
                 number
             };
@@ -640,7 +694,7 @@
             renderAttendanceList();
             updateAllBadges();
             updateStats();
-            showToast(`已成功新增球員：${name}`);
+            showToast(`已成功新增球員：${name} (${grade})`);
         }
 
         function togglePlayerManagementModal() {
@@ -673,7 +727,7 @@
                         </div>
                         <div>
                             <span class="font-bold text-slate-800 text-sm">${p.name}</span>
-                            <span class="text-xs px-2 py-0.5 bg-slate-200 text-slate-600 rounded-md ml-2">${p.role}</span>
+                            <span class="text-xs px-2 py-0.5 bg-slate-200 text-slate-600 rounded-md ml-2">${p.grade}</span>
                         </div>
                     </div>
                     <button onclick="removePlayer('${p.id}')" class="text-rose-500 hover:text-rose-700 p-2 text-xs font-medium rounded-lg hover:bg-rose-50 transition">
@@ -735,7 +789,6 @@
             if (absentList.length > 0) reportStr += `🔴 缺席 (${absentList.length})：${absentList.join('、')}\n`;
             if (unrecordedList.length > 0) reportStr += `⚪ 未記錄 (${unrecordedList.length})：${unrecordedList.join('、')}\n`;
 
-            // Copy via fallback text area
             const textArea = document.createElement("textarea");
             textArea.value = reportStr;
             document.body.appendChild(textArea);
@@ -749,7 +802,7 @@
         function exportCSV() {
             const date = document.getElementById('attendanceDate').value;
             let csvContent = "\uFEFF"; // UTF-8 BOM
-            csvContent += `日期,時段,球員姓名,角色,出席狀態,備註\n`;
+            csvContent += `日期,時段,球員姓名,年級,分組,出席狀態,備註\n`;
 
             ['morning', 'afternoon', 'night', 'extra'].forEach(sKey => {
                 const sName = SESSION_NAMES[sKey];
@@ -764,7 +817,7 @@
                     else if (rec.status === 'absent') statusText = '缺席';
 
                     const note = (rec.note || '').replace(/,/g, ' ');
-                    csvContent += `${date},${sName},${p.name},${p.role},${statusText},${note}\n`;
+                    csvContent += `${date},${sName},${p.name},${p.grade},${p.gradeGroup},${statusText},${note}\n`;
                 });
             });
 
@@ -780,7 +833,6 @@
             showToast('點名紀錄 CSV 檔案已開始下載');
         }
 
-        // --- Toast Notification ---
         function showToast(msg) {
             const toast = document.getElementById('toast');
             document.getElementById('toastMessage').innerText = msg;
