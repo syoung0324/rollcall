@@ -62,7 +62,7 @@
                 <div>
                     <h1 class="text-xl sm:text-2xl font-bold tracking-tight flex items-center gap-2">
                         羽球隊每日點名系統
-                        <span class="text-xs bg-emerald-500/30 text-emerald-200 border border-emerald-400/30 px-2 py-0.5 rounded-full font-normal">v2.0</span>
+                        <span class="text-xs bg-emerald-500/30 text-emerald-200 border border-emerald-400/30 px-2 py-0.5 rounded-full font-normal">v2.2</span>
                     </h1>
                     <p class="text-xs text-emerald-100 opacity-90">Badminton Team Attendance Management</p>
                 </div>
@@ -107,21 +107,17 @@
                     <span id="badge-night" class="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">0/0</span>
                 </button>
                 <button onclick="switchSession('extra')" id="tab-extra" class="session-tab flex-1 py-2.5 px-3 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition">
-                    <i class="fa-solid fa-dumbbell text-emerald-500"></i>
-                    <span>自主訓練</span>
+                    <i class="fa-solid fa-bus text-emerald-500"></i>
+                    <span>竹東移地訓練</span>
                     <span id="badge-extra" class="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">0/0</span>
                 </button>
             </div>
 
             <!-- Quick Export Tools -->
-            <div class="bg-white p-2.5 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-around gap-2">
-                <button onclick="copyLineReport()" class="flex-1 h-full py-2 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-medium rounded-xl text-xs flex flex-col items-center justify-center gap-1 transition border border-emerald-200">
-                    <i class="fa-brands fa-line text-lg text-emerald-600"></i>
-                    <span>複製 LINE 點名報表</span>
-                </button>
-                <button onclick="exportCSV()" class="flex-1 h-full py-2 px-3 bg-sky-50 hover:bg-sky-100 text-sky-700 font-medium rounded-xl text-xs flex flex-col items-center justify-center gap-1 transition border border-sky-200">
+            <div class="bg-white p-2.5 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-center">
+                <button onclick="exportCSV()" class="w-full h-full py-2.5 px-4 bg-sky-50 hover:bg-sky-100 text-sky-700 font-medium rounded-xl text-xs flex items-center justify-center gap-2 transition border border-sky-200 shadow-sm">
                     <i class="fa-solid fa-file-csv text-lg text-sky-600"></i>
-                    <span>匯出 Excel / CSV</span>
+                    <span>匯出 Excel / CSV 報表</span>
                 </button>
             </div>
         </div>
@@ -152,27 +148,40 @@
                 </div>
             </div>
 
-            <!-- Stats Bar -->
-            <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 my-4">
+            <!-- Stats Bar (Updated with Grade Counts) -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 my-4">
                 <div class="bg-emerald-50/60 border border-emerald-100 rounded-xl p-3 text-center">
                     <div class="text-xs font-medium text-emerald-700 mb-1">出席 🟢</div>
-                    <div id="stat-present" class="text-xl font-bold text-emerald-800">0</div>
+                    <div id="stat-present" class="text-lg font-bold text-emerald-800">0</div>
                 </div>
                 <div class="bg-amber-50/60 border border-amber-100 rounded-xl p-3 text-center">
                     <div class="text-xs font-medium text-amber-700 mb-1">請假 🟡</div>
-                    <div id="stat-leave" class="text-xl font-bold text-amber-800">0</div>
+                    <div id="stat-leave" class="text-lg font-bold text-amber-800">0</div>
                 </div>
                 <div class="bg-orange-50/60 border border-orange-100 rounded-xl p-3 text-center">
                     <div class="text-xs font-medium text-orange-700 mb-1">遲到 🟠</div>
-                    <div id="stat-late" class="text-xl font-bold text-orange-800">0</div>
+                    <div id="stat-late" class="text-lg font-bold text-orange-800">0</div>
                 </div>
                 <div class="bg-rose-50/60 border border-rose-100 rounded-xl p-3 text-center">
                     <div class="text-xs font-medium text-rose-700 mb-1">缺席 🔴</div>
-                    <div id="stat-absent" class="text-xl font-bold text-rose-800">0</div>
+                    <div id="stat-absent" class="text-lg font-bold text-rose-800">0</div>
                 </div>
-                <div class="col-span-2 sm:col-span-1 bg-slate-50 border border-slate-100 rounded-xl p-3 text-center flex flex-col justify-center">
+                <div class="bg-slate-50 border border-slate-100 rounded-xl p-3 text-center flex flex-col justify-center">
                     <div class="text-xs font-medium text-slate-500 mb-1">出席率</div>
-                    <div id="stat-rate" class="text-xl font-bold text-slate-700">0%</div>
+                    <div id="stat-rate" class="text-lg font-bold text-slate-700">0%</div>
+                </div>
+                <!-- Grade Stats -->
+                <div class="bg-amber-50/40 border border-amber-100 rounded-xl p-3 text-center">
+                    <div class="text-xs font-medium text-amber-800 mb-1">低年級 🧒</div>
+                    <div id="stat-low-grade" class="text-base font-bold text-amber-900">0/0</div>
+                </div>
+                <div class="bg-blue-50/40 border border-blue-100 rounded-xl p-3 text-center">
+                    <div class="text-xs font-medium text-blue-800 mb-1">中年級 👦</div>
+                    <div id="stat-mid-grade" class="text-base font-bold text-blue-900">0/0</div>
+                </div>
+                <div class="bg-purple-50/40 border border-purple-100 rounded-xl p-3 text-center">
+                    <div class="text-xs font-medium text-purple-800 mb-1">高年級 🧑</div>
+                    <div id="stat-high-grade" class="text-base font-bold text-purple-900">0/0</div>
                 </div>
             </div>
 
@@ -354,7 +363,7 @@
             morning: '晨間訓練',
             afternoon: '下午團練',
             night: '夜訓',
-            extra: '自主訓練'
+            extra: '竹東移地訓練'
         };
 
         let players = [];
@@ -547,7 +556,6 @@
                 const isLate = status === 'late';
                 const isAbsent = status === 'absent';
 
-                // Grade badge color mapping
                 let gradeColor = 'bg-slate-100 text-slate-700';
                 if (p.gradeGroup === '高年級') gradeColor = 'bg-purple-100 text-purple-700';
                 else if (p.gradeGroup === '中年級') gradeColor = 'bg-blue-100 text-blue-700';
@@ -621,18 +629,38 @@
             let lateCount = 0;
             let absentCount = 0;
 
+            let lowPresent = 0, lowTotal = 0;
+            let midPresent = 0, midTotal = 0;
+            let highPresent = 0, highTotal = 0;
+
             players.forEach(p => {
                 const status = sessionData[p.id]?.status;
                 if (status === 'present') presentCount++;
                 else if (status === 'leave') leaveCount++;
                 else if (status === 'late') lateCount++;
                 else if (status === 'absent') absentCount++;
+
+                // Grade stats calculation
+                if (p.gradeGroup === '低年級') {
+                    lowTotal++;
+                    if (status === 'present') lowPresent++;
+                } else if (p.gradeGroup === '中年級') {
+                    midTotal++;
+                    if (status === 'present') midPresent++;
+                } else if (p.gradeGroup === '高年級') {
+                    highTotal++;
+                    if (status === 'present') highPresent++;
+                }
             });
 
             document.getElementById('stat-present').innerText = presentCount;
             document.getElementById('stat-leave').innerText = leaveCount;
             document.getElementById('stat-late').innerText = lateCount;
             document.getElementById('stat-absent').innerText = absentCount;
+
+            document.getElementById('stat-low-grade').innerText = `${lowPresent}/${lowTotal}`;
+            document.getElementById('stat-mid-grade').innerText = `${midPresent}/${midTotal}`;
+            document.getElementById('stat-high-grade').innerText = `${highPresent}/${highTotal}`;
 
             const total = players.length;
             const rate = total > 0 ? Math.round((presentCount / total) * 100) : 0;
@@ -753,52 +781,6 @@
         }
 
         // --- Export Functions ---
-        function copyLineReport() {
-            const date = document.getElementById('attendanceDate').value;
-            const sessionTitle = SESSION_NAMES[currentSession];
-            const sessionData = attendanceRecord[currentSession] || {};
-
-            let presentList = [];
-            let leaveList = [];
-            let lateList = [];
-            let absentList = [];
-            let unrecordedList = [];
-
-            players.forEach(p => {
-                const record = sessionData[p.id];
-                const note = record?.note ? `(${record.note})` : '';
-                const nameWithNote = `${p.name}${note}`;
-
-                if (record?.status === 'present') presentList.push(nameWithNote);
-                else if (record?.status === 'leave') leaveList.push(nameWithNote);
-                else if (record?.status === 'late') lateList.push(nameWithNote);
-                else if (record?.status === 'absent') absentList.push(nameWithNote);
-                else unrecordedList.push(p.name);
-            });
-
-            const total = players.length;
-            const rate = total > 0 ? Math.round((presentList.length / total) * 100) : 0;
-
-            let reportStr = `🏸【羽球隊點名回報 - ${sessionTitle}】\n`;
-            reportStr += `📅 日期：${date}\n`;
-            reportStr += `📊 出席率：${rate}% (${presentList.length}/${total}人)\n`;
-            reportStr += `------------------------------\n`;
-            reportStr += `🟢 出席 (${presentList.length})：${presentList.join('、') || '無'}\n`;
-            if (leaveList.length > 0) reportStr += `🟡 請假 (${leaveList.length})：${leaveList.join('、')}\n`;
-            if (lateList.length > 0) reportStr += `🟠 遲到 (${lateList.length})：${lateList.join('、')}\n`;
-            if (absentList.length > 0) reportStr += `🔴 缺席 (${absentList.length})：${absentList.join('、')}\n`;
-            if (unrecordedList.length > 0) reportStr += `⚪ 未記錄 (${unrecordedList.length})：${unrecordedList.join('、')}\n`;
-
-            const textArea = document.createElement("textarea");
-            textArea.value = reportStr;
-            document.body.appendChild(textArea);
-            textArea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textArea);
-
-            showToast('已複製 LINE 點名報表至剪貼簿！');
-        }
-
         function exportCSV() {
             const date = document.getElementById('attendanceDate').value;
             let csvContent = "\uFEFF"; // UTF-8 BOM
